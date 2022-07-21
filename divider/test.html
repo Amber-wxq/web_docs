@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+<style>
+ .title-flex {
+        display: flex;
+        align-items: center;
+        font-size: 0.4rem;
+        /* font-size: 14px; */
+        color: pink;
+        padding: 10px 0;
+    }
+
+    .title-flex::before,
+    .title-flex::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: pink;
+    }
+
+    .title-flex::before {
+        /* margin-right: 0.25rem; */
+    }
+
+    .title-flex::after {
+        /* margin-left: 0.25rem; */
+    }
+    .title-flex1 {
+        
+        /* font-size: 14px; */
+       
+        padding-top: 10px ;
+        border-bottom:dashed 1px black;
+        margin-bottom: 10px;
+    }
+    .title-flex2 {
+        
+        font-size: 14px;
+        
+        padding-top: 10px ;
+        border-bottom:dotted 1px black ;
+        margin-bottom: 10px;
+
+    }
+    .table{
+      width: 300px;
+      height: 200px;
+      background-color: rgb(215, 215, 215);
+    }
+    .table td{
+      border: 1px solid greenyellow;
+    }
+    hr {
+      border: 0;
+    border-top:1px dashed black;
+    
+}
+
+
+
+</style>
+  </head>
+  <body>
+    <span>实线divider</span>
+    <div class="title-flex"></div>
+    <div class="title-flex"></div>
+    
+    <span>虚线divider-dashed</span>
+    <div class="title-flex1"></div>
+    <div class="title-flex1"></div>
+    <span>虚线divider-dotted</span>
+    <div class="title-flex2"></div>
+    <div class="title-flex2"></div>
+   
+    <table class="table">
+      <tbody>
+        <thead>
+        <tr class="table-tr">
+          <th colspan="2"> 1</th>
+        </tr>
+        </thead>
+        
+      <tr class="table-tr">
+        <td>2</td>
+        <td>2</td>
+
+      </tr>
+      <tr class="table-tr">
+        <td><div class="title-flex1"></div></td>
+        <td><hr></td>
+        
+      </tr>
+      </tbody>
+      
+    </table>
+    <hr> 
+  </body>
+</html>

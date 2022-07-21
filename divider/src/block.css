@@ -1,0 +1,20 @@
+.dashedLine {
+  padding-top: 10px ;
+  border-bottom: dashed 1px black;
+  margin-bottom: 10px;
+}
+.solidLine {
+  padding-top: 10px ;
+  border-bottom: solid 1px black;
+  margin-bottom: 10px;
+}
+.hrDashedLine {
+  border: 0;
+  border-top: 1px dashed black;
+  height: 0;
+}
+.hrSolidLine {
+  border: 0;
+  border-top: 1px solid black;
+  height: 0;
+}

@@ -1,0 +1,25 @@
+.divider(@lineStyle:solid,@color:black) {
+    padding-top: 10px ;
+    border-bottom:@lineStyle 1px @color;
+    margin-bottom: 10px;
+}
+
+.dashedLine{
+    .divider(dashed);
+}
+
+.solidLine{
+    .divider;
+}
+
+.hrDivider(@lineStyle:solid,@color:black) {
+    border: 0;
+    border-top:1px @lineStyle @color;
+    height:0;
+}
+.hrDashedLine{
+    .hrDivider(dashed); 
+}
+.hrSolidLine{
+    .hrDivider; 
+}
