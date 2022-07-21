@@ -216,6 +216,9 @@ reducer构造：
         export default counterSlice.reducer
 ### createSlice 
 您所要做的就是为这个切片定义一个名称，编写一个包含 reducer 函数的对象，它会自动生成相应的 action 代码
+
+createSlice函数接收初始状态initialState,包含reducer函数的对象，切片名称；自动生成action creators和action types 
+
 name 选项的字符串用作每个 action 类型的第一部分，每个 reducer 函数的键名用作第二部分。
 
 因此，"counter" 名称 + "increment" reducer 函数生成了一个 action 类型 {type: "counter/increment"}。
@@ -577,6 +580,121 @@ Redux 提供了一个combineReducers方法，用于 Reducer 的拆分。你只�
     
     const reducer = combineReducers(reducers)
 
+### 中间件
+
+一个函数，对store.dispatch方法进行了改造，在发出Action和执行Reducer之间，添加了其他功能
+
+#### 使用中间件
+
+```js
+import {applyMiddleware,createStore} from 'redux';
+import createLogger from 'redux-logger';
+const logger=creatLogger();
+
+const store=createStore(
+	reducer,
+  applyMiddleware(logger)
+)
+```
+
+`redux-logger`提供一个生成器`createLogger`，可以生成日志中间件`logger`。然后，将它放在`applyMiddleware`方法之中，传入`createStore`方法，就完成了`store.dispatch()`的功能增强。
+
+注意：
+
+- createStore接收初始状态作为参数时，applyMiddleware就是第三个参数了
+
+  `const store=createStore(reducer,initialState,applyMiddleware(logger));`
+
+- 中间件的次序有讲究
+
+  ```
+  const store=createStore(
+  	reducer,
+  	applyMiddleware(thunk,promise,logger)
+  )
+  ```
+
+  有的中间件有次序要求，使用前要查一下文档。比如，`logger`就一定要放在最后，否则输出结果会不正确。
+
+#### applyMiddleware()
+
+redux的原生方法，作用将所有中间件组成一个数组，依次执行
+
+### 异步操作
+
+同步操作只要发出一种Action就行，异步操作的差别就是它要发出三种Action
+
+- 操作发起时的Action
+- 操作成功时的Action
+- 操作失败时的Action
+
+例：向服务器取出数据，Action写法
+
+```
+//第一种：名称相同，参数不同
+{type:'FETCH_POSTS'}
+{type:'FETCH_POSTS',status:'error',error:'Oops'}
+{type:'FETCH_POSTS',status:'success',response:{...}}
+//第二种：名称不同
+{type:'FETCH_POSTS_REQUEST'}
+{type:'FETCH_POSTS_FAILURE',error:'Oops'}
+{type:'FETCH_POSTS_SUCCESS'，response:{...}}
+```
+
+除了Action种类不同，异步操作的 State 也要进行改造，反映不同的操作状态。下面是 State 的一个例子。
+
+```
+let state={
+	ifFetching:true,
+	didInvalidate:true,
+	lastUpdated:'xxxxxx'
+};
+```
+
+上面代码中，State 的属性`isFetching`表示是否在抓取数据。`didInvalidate`表示数据是否过时，`lastUpdated`表示上一次更新时间。
+
+整个异步操作的思路就很清楚了。
+
+- 操作开始时，送出一个 Action，触发 State 更新为"正在操作"状态，View 重新渲染
+- 操作结束后，再送出一个 Action，触发 State 更新为"操作结束"状态，View 再一次重新渲染
+
+### redux-thunk中间件
+
+异步操作至少要送出两个 Action：用户触发第一个 Action，这个跟同步操作一样，没有问题；如何才能在操作结束时，系统自动送出第二个 Action 呢？
+
+奥妙就在 Action Creator 之中。
+
+```
+class AsyncApp extends Component {
+	componentDidMount(){
+      const { dispatch, selectedPost } = this.props
+      dispatch(fetchPosts(selectedPost))
+}
+}
+```
+
+加载成功后（`componentDidMount`方法），它送出了（`dispatch`方法）一个 Action，向服务器要求数据 `fetchPosts(selectedSubreddit)`。这里的`fetchPosts`就是 Action Creator。
+
+**关键**：
+
+```
+const fetchPost=postTitle=>(dispatch,getState)=>{
+	dispatch(requestPost(postTitle));
+	return fetch(`/some/API/${postTitle}.json`)
+	.then(response=>response.json)
+	.then(json=dispatch(receivePosts(postTitle,json)));
+}
+
+//使用
+store.dispatch(fetchPost('reactjs'));
+//or
+store.dispatch(fetchPosts('reactjs')).then(()=>
+	console.log(store.getStatus())
+)
+```
+
+上面代码中，`fetchPosts`是一个Action Creator（动作生成器），返回一个函数。这个函数执行后，先发出一个Action（`requestPosts(postTitle)`），然后进行异步操作。拿到结果后，先将结果转成 JSON 格式，然后再发出一个 Action（ `receivePosts(postTitle, json)`）
+
 ## Redux 工作流程
 
 首先，用户发出Action。
@@ -598,6 +716,12 @@ listener可以通过store.getState()得到当前状态，如果使用的是React
         let newState=store.getState();
         component.setState(newState);
     }
+
+Redux 基本做法：用户发出Action，Reducer函数算出新的state，View重新渲染
+
+Action 发出以后，Reducer 立即算出 State，这叫做同步；Action 发出以后，过一段时间再执行 Reducer，这就是异步。
+
+怎么才能 Reducer 在异步操作结束后自动执行呢？这就要用到新的工具：中间件（middleware）。
 
 
 
@@ -640,16 +764,86 @@ export const store=configureStore({
 })
 ```
 
-不用createStore改用configureStore 因为已经弃用
+不用createStore改用configureStore ,因为createStore已经弃用
 
 
 
 ### /features/counter/counterSlice.js
 
-导出一个reducer 作仓库构建的依据
+导出一个reducer 作仓库构建的依据，使用createSlice，传入reducer，生成actions
 
 ``` 
+counterSlice=createSlice({
+    name: 'counter',
+    initialState,
+    reducers:{
+        increment:state=>{
+            state.value+=1;
+        },
+        decrement:state=>{
+            state.value-=1;
+        },
+        incrementByAmount:(state,action)=>{
+            state.value+=action.payload;
+        },
+    },
+    })
+```
 
+导出
+
+```
+export const {increment,decrement,incrementByAmount}=counterSlice.actions
+export default counterSlice.reducer
+export const selectCount=(state)=>state.counter.value;
+```
+
+### /features/counter/Counter.js
+
+构建组件，并应用store中的action
+
+引入actions：
+
+```
+import {
+    decrement,
+    increment,
+    incrementByAmount,
+    incrementAsync,
+    incrementIfOdd,
+    selectCount,
+} from './counterSlice';
+```
+
+引入钩子
+
+```
+import { useSelector,useDispatch } from "react-redux";
+```
+
+useSelector 从store状态中读取一个值并订阅更新；
+
+useDispatch 返回store中的dispatch方法，便于发送actions
+
+初始状态
+
+```
+    const count=useSelector(selectCount);
+    const dispatch=useDispatch();
+    const [incrementAmount,setIncrementAmount]=useState('2');
+    const incrementValue=Number(incrementAmount)||0;
+```
+
+调用dispatch
+
+```
+onClick={()=>dispatch(increment())};
+onClick={()=>dispatch(incrementByAmount(incrementValue))
+
+//在定义中 action接收dispatch传参
+ incrementByAmount:(state,action)=>{
+            state.value+=action.payload;
+        },
 ```
 
 
