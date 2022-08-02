@@ -887,6 +887,24 @@ latex公式 type:8 subType:"latex"
 
 
 
+```
+ const entityId = editor.getEntityIdAt(spacerIndex_);
+      console.log(location.type_);
+      if (entityId == null) {
+        return;
+      }
+      console.log('entityId', entityId);
+      const entity = window.vodkaapp.modelStateWrapper_.getModel().getEntity(entityId);
+      console.log(`MoveEvent-quickbar-entity2-}`, entity);
+
+      const entityObject = entity?.getEmbeddedObject();
+      const entityType = entityObject.getType();
+      if (entityType === EmbeddedObject.Type.IMAGE) {
+        const imageBarHelper = vodkaapp.appView_?.getEntityRenderer?.(entityId)?.imageBarHelper;
+        imageBarHelper.changeBarStatusIfNeed();
+      }
+```
+
 
 
 

@@ -1,4 +1,4 @@
-# 顾一峰react
+# 阮一峰react
 
 ```
 git clone git@github.com:ruanyf/react-demos.git
@@ -584,6 +584,8 @@ class类，和基于函数的钩子（HOOKS)API
 
 上面这些钩子，都是引入某种特定的副效应，而 **`useEffect()`是通用的副效应钩子** 。找不到对应的钩子时，就可以用它。其实，从名字也可以看出来，它跟副效应（side effect）直接相关。
 
+以前，放在`componentDidMount`里面的代码，现在可以放在`useEffect()`。
+
 
 
 ## useEffect()作用
@@ -623,6 +625,48 @@ function Welcome(props){
 如果第二参数是一个空数组，表明没有任何依赖项，所以只会在组件加载进入DOM后执行一次。
 
 组件重新渲染，就不会再执行。
+
+例子：
+
+```jsx
+const Person = ({ personId }) => {
+  const [loading, setLoading] = useState(true);
+  const [person, setPerson] = useState({});
+
+  useEffect(() => {
+    setLoading(true); 
+    fetch(`https://swapi.co/api/people/${personId}/`)
+      .then(response => response.json())
+      .then(data => {
+        setPerson(data);
+        setLoading(false);
+      });
+  }, [personId])
+
+  if (loading === true) {
+    return <p>Loading ...</p>
+  }
+
+  return <div>
+    <p>You're viewing: {person.name}</p>
+    <p>Height: {person.height}</p>
+    <p>Mass: {person.mass}</p>
+  </div>
+}
+```
+
+### tip fetch用法
+
+```jsx
+fetch(`https://swapi.co/api/people/${personId}/`)
+      .then(response => response.json())
+      .then(data => {
+        setPerson(data);
+        setLoading(false);
+      });
+```
+
+
 
 ## useEffect() 的用途
 
@@ -713,6 +757,241 @@ function App() {
 
   return <span>{varA}, {varB}</span>;
 }
+```
+
+
+
+## 默认提供的最常用钩子
+
+- useState()
+- useContext()
+- useReducer()
+- useEffect()
+
+### useState()
+
+`useState()`这个函数接受状态的初始值，作为参数，上例的初始值为按钮的文字。该函数返回一个数组，数组的第一个成员是一个变量（上例是`buttonText`），指向状态的当前值。第二个成员是一个函数，用来更新状态，约定是`set`前缀加上状态的变量名（上例是`setButtonText`）。
+
+### useContext()共享状态
+
+在组件之间共享状态
+
+现在有两个组件 Navbar和Messages，希望他们之间共享状态
+
+```jsx
+<div className="App">
+  <Navbar />
+  <Messages />
+</div>
+```
+
+第一步 使用react Context API 在组件外部建立一个Context
+
+```
+const AppContext =React.createContext({});
+```
+
+组件封装代码如下
+
+```jsx
+<AppContext.Provider value={{username:'superawesome'}}>
+      <div className="App">
+      <Navbar />
+      <Messages />
+    </div>
+</ AppContext.Provider >
+```
+
+上面代码中，`AppContext.Provider`提供了一个 Context 对象，这个对象可以被子组件共享
+
+Navbar组价代码
+
+```jsx
+const Navbar=()=>{
+	const {username}=useContext(AppContext);
+	return(
+		<div className="navbar">
+			<p>AwesomeSite</p>
+			<p>{username}</p>
+		</div>
+	)
+}
+```
+
+上面代码中，`useContext()`钩子函数用来引入 Context 对象，从中获取`username`属性。
+
+Message 组件的代码也类似。
+
+```jsx
+const Messages = () => {
+  const { username } = useContext(AppContext)
+
+  return (
+    <div className="messages">
+      <h1>Messages</h1>
+      <p>1 message for {username}</p>
+      <p className="message">useContext is awesome!</p>
+    </div>
+  )
+}
+```
+
+### useReducer()action钩子
+
+React 本身不提供状态管理功能，通常需要使用外部库。这方面最常用的库是 Redux。
+
+Redux 的核心概念是，组件发出 action 与状态管理器通信。状态管理器收到 action 以后，使用 Reducer 函数算出新的状态，Reducer 函数的形式是`(state, action) => newState`。
+
+`useReducers()`钩子用来引入 Reducer 功能。
+
+```jsx
+const [state,dispatch] =useReducer(reducer,initialState);
+```
+
+面是`useReducer()`的基本用法，它接受 Reducer 函数和状态的初始值作为参数，返回一个数组。数组的第一个成员是状态的当前值，第二个成员是发送 action 的`dispatch`函数。
+
+例子：计数器
+
+```jsx
+const myReducer=(state,action)=>{
+	switch(action.type){
+      case('countUp'):
+      	return {
+          ...state,
+          count:state.count+1
+        }
+    default:
+      return state；
+	
+}
+}
+```
+
+组件代码如下。
+
+```jsx
+function App() {
+  const [state, dispatch] = useReducer(myReducer, { count:   0 });
+  return  (
+    <div className="App">
+      <button onClick={() => dispatch({ type: 'countUp' })}>
+        +1
+      </button>
+      <p>Count: {state.count}</p>
+    </div>
+  );
+}
+```
+
+由于 Hooks 可以提供共享状态和 Reducer 函数，所以它在这些方面可以取代 Redux。但是，它没法提供中间件（middleware）和时间旅行（time travel），如果你需要这两个功能，还是要用 Redux
+
+整体代码：
+
+```jsx
+import React, { useReducer } from "react";
+import ReactDOM from "react-dom";
+import "./styles.css";
+
+const myReducer = (state, action) => {
+  switch(action.type) {
+    case('countUp'):
+      return {
+        ...state,
+        count: state.count + 1
+      }
+    default:
+      return state
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(myReducer, { count: 0 })
+
+  return (
+    <div className="App">
+      <button onClick={() => dispatch({ type: 'countUp' })}>
+        +1
+      </button>
+      <p>Count: {state.count}</p>
+    </div>
+  );
+}
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App />, rootElement);
+```
+
+## 创建自己的Hooks
+
+```jsx
+
+const Person = ({ personId }) => {
+  const [loading, setLoading] = useState(true);
+  const [person, setPerson] = useState({});
+
+  useEffect(() => {
+    setLoading(true); 
+    fetch(`https://swapi.co/api/people/${personId}/`)
+      .then(response => response.json())
+      .then(data => {
+        setPerson(data);
+        setLoading(false);
+      });
+  }, [personId])
+
+  if (loading === true) {
+    return <p>Loading ...</p>
+  }
+
+  return <div>
+    <p>You're viewing: {person.name}</p>
+    <p>Height: {person.height}</p>
+    <p>Mass: {person.mass}</p>
+  </div>
+}
+```
+
+上面的Hooks代码可以封装起来，变成一个自定义的Hook，便于共享
+
+```jsx
+const usePerson=(personId){
+	const [loading,setLoading]=useState(true);
+  const [person,setPerson]=useState({});
+  useEffect(()=>{
+    	setLoading(true);
+    fetch(`https://swapi.co/api/people/${personId}/`)
+    .then(response=>response.json())
+    .then(data=>{
+      setPerson(data);
+      setLoading(false);
+    });
+    
+  },[personId]);
+  return [loading,person]
+}
+```
+
+上面代码中，`usePerson()`就是一个自定义的 Hook。
+
+Person 组件就改用这个新的钩子，引入封装的逻辑
+
+```jsx
+
+const Person = ({ personId }) => {
+  const [loading, person] = usePerson(personId);
+
+  if (loading === true) {
+    return <p>Loading ...</p>;
+  }
+
+  return (
+    <div>
+      <p>You're viewing: {person.name}</p>
+      <p>Height: {person.height}</p>
+      <p>Mass: {person.mass}</p>
+    </div>
+  );
+};
 ```
 
 

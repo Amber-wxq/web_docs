@@ -30,8 +30,11 @@ git branch 之后进入的状态 按q进行退出
 删除分支
     git branch -d (branch name)
 
+push
 
+`git push` 直接全部push
 
 ## .gitignore
 
 添加 `node_modules/` 或`node_modules` 到`.gitignore`文件以忽略`node_modules`当前文件夹和任何子文件夹中调用的所有目录
+
