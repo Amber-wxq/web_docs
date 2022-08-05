@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+           .div1 {
+        width: 320px;
+        height: 320px;
+        border: 1px solid red;
+        background: url(http://img.smyhvae.com/20191006_1410.png) no-repeat;
+        background-size: cover;
+
+        /* 裁剪出圆形区域 */
+        clip-path: circle(50px at 100px 100px);
+        transition: clip-path .4s;
+    }
+    .div1:hover{
+        /* 鼠标悬停时，裁剪出更大的圆形 */
+        clip-path: circle(80px at 100px 100px);
+    }
+    </style>
+</head>
+<body>
+    <div class="img div1"></div>
+    <div class="img div2"></div>
+</body>
+</html>

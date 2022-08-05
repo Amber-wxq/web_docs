@@ -859,31 +859,79 @@ type：8
 
 ```
 
-附件 type：6   attachmentViewType_:1    InlineEntity
-视频 type：6		attachmentViewType_: 2   InlineEntity
-分割线 type：8 subType: "dividerLine"   InlineEntity
-代码块 type：7     (entityType == EmbeddedObject.Type.CODE_BLOCK）可以直接判断   InlineEntity
-已读统计 type：8 subType: "readApp"   InlineEntity
-kim群卡 type:8 subType:"insertKimGroup"
+- 附件 type：6   attachmentViewType_:1    InlineEntity
+- 视频 type：6		attachmentViewType_: 2   InlineEntity
+
+修改文件：src/features/vodka-plugin/components/Attachment/Attachment.tsx
+src/editor/features/attachment/embeddedentityattachmentrender.ts
+
+
+-代码块 type：7     (entityType == EmbeddedObject.Type.CODE_BLOCK）可以直接判断   InlineEntity
+和附件的相似
+改的文件：src/features/vodka-plugin/components/CodeBlock/CodeBlock.tsx
+src/editor/features/codeblock/EmbeddedCodeBlockRenderer.ts
+
+
+
+
+-分割线 type：8 subType: "dividerLine"   InlineEntity
+-已读统计 type：8 subType: "readApp"   InlineEntity
+-kim群卡 type:8 subType:"insertKimGroup"
+-latex公式 type:8 subType:"latex"
+
+
 段落   e.isInparagraph:true  entity2:null
 
-team数据-统计图表 type_: 2 subType_: "team-plugin-team-chart"  问题 点击里面 不能捕获event
+- team数据-统计图表 type_: 2 subType_: "team-plugin-team-chart"  问题 点击里面 不能捕获event
+和图片类似
+//src/editor/features/embedded/EmbeddedObjectIframeRenderer.tsx
 
-图片： type：0   subType:0
-流程图  type_: 0 subType_: 1
-思维导图  type_: 0 subType_: 2
 
-latex公式 type:8 subType:"latex"
+- 图片： type：0   subType:0
+- 流程图  type_: 0 subType_: 1
+- 思维导图  type_: 0 subType_: 2
+
+
 
 
 目录  目前不知道怎么区分  entity2 null  
 超链接 目前不知道怎么区分  entity2 null  
 
-
-
+附件
+//src/editor/features/attachment/embeddedentityattachmentrender.ts   quickbar 控制文件
+EmbeddedEntityAttachmentRenderer
+type:6 getAttachmentType
+embeddedObject.getAttachmentViewType() 
+Attachment.VIEW_TYPES.PREVIEW
+ public static VIEW_TYPES = {
+    CARD: 1,
+    PREVIEW: 2
+  };
+  quickBarIsVisible
 ```
 
+//src/features/vodka-plugin/components/Attachment/Attachment.tsx  
+ {(quickBarIsVisible || selectedOnly || quickBarHasMouse) && showToolbar && 
+ 
+ //src/editor/features/attachment/embeddedentityattachmentrender.ts
+ 我在  先
+ 
+ src/features/vodka-plugin/components/Attachment/Attachment.tsx
+ 我也在   后
+ 
 
+附件问题：
+	设置了选中，显示bar，但是一移开就会消失，判断是onAttachmentMouseLeave 和取消selectOnly判断render组件的问题
+
+
+
+
+
+- hover显示，选中不显示：
+
+  --块状应用：
+
+​		--图文应用|目录|超链接？|	
 
 
 
@@ -904,6 +952,12 @@ latex公式 type:8 subType:"latex"
         imageBarHelper.changeBarStatusIfNeed();
       }
 ```
+
+页面调试可用
+
+  getEntity() {
+    return window.vodkaapp.modelStateWrapper_.getModel().getEntity(this.entityId_);
+  }
 
 
 
