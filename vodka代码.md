@@ -964,20 +964,91 @@ Attachment.VIEW_TYPES.PREVIEW
 
 
 
+window.vodkaapp.currentModelState_.getSelectionModel().getSelection()
+可以获取到文本的选择区域
+
+entity 链接undefined  文字undefined
+
+
+src/editor/controller/mouse/mousehandler1.ts
+超链接
+目录
+table
+
+
+
+遇到问题
+hovered和selected一样
+
+
+
+Selection {cursorLocation_: InlineLocation, cursorMarkedRange_: MarkedRange, anchorMarkedRange_: MarkedRange, otherSelectedRanges_: Array(0), selectedRanges_: Array(1), …}
+anchorMarkedRange_: MarkedRange {start_: 1136, end_: 1137, mark_: InlineLocation, cachedRange_: Range}
+cursorLocation_: InlineLocation {type_: 0, spacerIndex_: 1136, afterPreviousSpacer_: false, shiftedByInserts_: false}
+cursorMarkedRange_: MarkedRange {start_: 1136, end_: 1137, mark_: InlineLocation, cachedRange_: Range}
+otherSelectedRanges_: []
+selectedRanges_: [Range]
+simpleSelection_: {cursorIndex: 1136, isCollapsed: ƒ}
+[[Prototype]]: Object
+
+
+Selection {cursorLocation_: InlineLocation, cursorMarkedRange_: MarkedRange, anchorMarkedRange_: MarkedRange, otherSelectedRanges_: Array(0), selectedRanges_: Array(1), …}
+anchorMarkedRange_: MarkedRange {start_: 1127, end_: 1127, mark_: InlineLocation, cachedRange_: Range}
+cursorLocation_: InlineLocation {type_: 0, spacerIndex_: 1127, afterPreviousSpacer_: false, shiftedByInserts_: false}
+cursorMarkedRange_: MarkedRange {start_: 1127, end_: 1127, mark_: InlineLocation, cachedRange_: Range}
+otherSelectedRanges_: []
+selectedRanges_: [Range]
+simpleSelection_: {cursorIndex: 1127, isCollapsed: ƒ}
+[[Prototype]]: Object
 
 
 
 
+如果选中的不止是文字（有可能包含其他块应用之类），那hover到其他块应用要怎么显示
 
 
 
 
+如何判断选中了目录
+custom类统一控制
+
+vodka-autogenregionrenderer 
+vodka-autogenregionrenderer-hovered
+vodka-autogenregionrenderer-selected
+
+import { HtmlRegionRenderer as AutogenRegionRenderer } from '@editor/features/discussion/toc/HtmlAutogenRegionRenderer';
 
 
 
 
+接管之后，如果想设置select了出现quickbar，需要和hover结束的情况综合考虑
+键盘选中，可以显示。
+鼠标选中，显示但是离开之后判定为hover结束，会执行quickbar消失的操作
+设定Selected 也出现是要加判断条件 
+
+RegionUtil.isSpacerInRegion = function (
+  spacers: any,
+  spacerIndex: any,
+  startMarker: any,
+  endMarker: any
+) {
+
+static tableMarker = {
+    TABLE_CELL: '\u001c',
+    TABLE_END: '\u0011',
+    TABLE_ROW: '\u0012',
+    TABLE_START: '\u0010'
+  };
+  
+  
+  export function isSpacerInAutogen(spacerIndex: number) {
+  return RegionUtil.isSpacerInRegion(
+    getSpacers(),
+    spacerIndex,
+    Spacers.Marker.AUTOGEN_START,
+    Spacers.Marker.AUTOGEN_END
+  );
+}
 
 
-
-
-
+AutogenRegionRenderer
