@@ -73,14 +73,17 @@
         mask.style.display = "none";
         big.style.display = "none";
       };
-      small.onmousedown = function (event) {
-        pageX = event.pageX || scroll().left + event.clientX;
-        pageY = event.pageY || scroll().top + event.clientY;
-        console.log(event);
+      small.onclick=function(event){
+        
         console.log('event.pageX, event.pageY',event.pageX, event.pageY);
         console.log('event.clientX',event.clientX,event.clientY)
-        console.log('pageX',pageX, pageY);
-        console.log('box.offsetLeft',box.offsetLeft,box.offsetTop)
+      }
+      small.onmousemove = function (event) {
+        pageX = event.pageX || scroll().left + event.clientX;
+        pageY = event.pageY || scroll().top + event.clientY;
+        // console.log(event);
+        // console.log('pageX',pageX, pageY);
+        // console.log('box.offsetLeft',box.offsetLeft,box.offsetTop)
         var x = pageX - box.offsetLeft - mask.offsetWidth / 2;
         var y = pageY - box.offsetTop - mask.offsetHeight / 2;
         

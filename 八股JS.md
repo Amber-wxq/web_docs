@@ -1232,7 +1232,7 @@ event调用：
 
 - clientLeft：盒子的左border。
 
-## 三大家族 offset/scroll/client 的区别
+### 三大家族 offset/scroll/client 的区别
 
 ### 区别1：宽高
 
@@ -1323,3 +1323,385 @@ clientY/clientX：
 - 作用：鼠标距离浏览器可视区域的距离（左、上）。
 
 ![](/Users/wxq/Desktop/TodoList/test/八股img/鼠标距离.jpg)
+
+### 事件绑定
+
+DOM0写法：onclick
+
+DOM2写法：`addEventListener('click',()=>{},false)`
+
+- 参数1：事件名的字符串(注意，没有on)
+
+- 参数2：回调函数：当事件触发时，该函数会被执行
+
+- 参数3：**true表示捕获阶段触发，false表示冒泡阶段触发（默认）**。如果不写，则默认为false。【重要】
+
+默认：false 
+
+捕获 冒泡 目标
+
+捕获：向下寻找的过程
+
+，冒泡：向上影响的过程
+
+`addEventListener()`中的this，是绑定事件的对象。
+
+### DOM事件流
+
+事件传播三阶段 捕获 冒泡 目标
+
+- 事件捕获：事件从**祖先元素**往**子元素**查找，直到捕获到事件**目标****target**，事件相应的监听函数不会被触发。
+- 事件目标：当到达目标元素之后，**执行目标元素该事件相应的处理函数**。如果没有绑定监听函数，就不执行
+- 事件冒泡阶段：事件从事件目标target开始，从元素往祖先元素冒泡，直到页面的最上一级标签；
+
+向下**捕获**--事件**目标**执行处理函数--向上**冒泡**
+
+![](http://img.smyhvae.com/20180204_1218.jpg)
+
+#### 事件捕获
+
+设置参数`addEventListener`第三个参数为true，表示事件在捕获阶段执行。
+
+默认是false，冒泡，表示事件在冒泡阶段执行
+
+第一个接收到事件的对象是**window**
+
+涉及到DOM对象，两个对象最常用：**window和document**
+
+- 要是想获取**html**节点：`document.documentElement`
+
+- 要是获取**body**节点：`document.body`
+
+#### 事件冒泡
+
+**一个元素上的事件**被触发（比如鼠标点击了一个按钮），**同样**的事件将会在那个元素的**所有祖先元素**中被触发。
+
+这个过程被称为事件冒泡；
+
+即：子元素事件被触发时，**父元素的同样的事件**也会被触发。取消冒泡就是取消这种机制。
+
+**前提是父元素上绑定的是子元素相同的事件**
+
+**不是所有事件都能冒泡**：
+
+比如：`blur/focus/load/unload/onmouseenter/onmouseleave`
+
+事件往往不会往父元素那里传
+
+检查元素是否会冒泡可以通过以下参数：
+
+```
+event.bubbles
+```
+
+返回是true表示事件会冒泡
+
+**阻止冒泡**
+
+大多数冒泡是有益的，但如果想阻止
+
+```
+event.stopPropagation();
+//w3c的方法：（火狐、谷歌、IE11）
+or
+event.cancelBubble=true
+//IE10	
+```
+
+### 事件委托
+
+把一个元素响应事件的函数委托到另一个元素
+
+比如一个列表ul，列表中有大量列表项a标签
+
+```html
+<ul id="parent-list">
+    <li><a href="javascript:;" class="my_link">超链接一</a></li>
+    <li><a href="javascript:;" class="my_link">超链接二</a></li>
+    <li><a href="javascript:;" class="my_link">超链接三</a></li>
+</ul>
+```
+
+鼠标移到a上，获取a的相关信息并飘出漂浮框显示详细信息。
+
+或者a被点击时触发相应处理事件
+
+通常写法：每个a都绑定事件监听
+
+但这样过于**消耗内存和性能**。
+
+希望能**只绑定一次事件，就可以应用到多个元素上**，即使元素是后来添加的。
+
+好的方法就是：把点击**事件绑定到他的父层（ul）上，**然后执行事件函数的时候**匹配判断目标元素**
+
+```
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <script type="text/javascript">
+            window.onload = function() {
+
+                // 获取父节点，并为它绑定click单击事件。 false 表示事件在冒泡阶段触发（默认）
+                document.getElementById('parent-list').addEventListener('click', function(event) {
+                    event = event || window.event;
+
+                    // e.target 表示：触发事件的对象
+                    //如果触发事件的对象是我们期望的元素，则执行；否则不执行
+                    if (event.target && event.target.className == 'link') {
+                    // 或者写成 if (event.target && event.target.nodeName.toUpperCase() == 'A') {
+                        console.log('我是ul的单击响应函数');
+                    }
+                }, false);
+            };
+        </script>
+    </head>
+    <body>
+        <ul id="parent-list" style="background-color: #bfa;">
+            <li>
+                <p>我是p元素</p>
+            </li>
+            <li><a href="javascript:;" class="link">超链接一</a></li>
+            <li><a href="javascript:;" class="link">超链接二</a></li>
+            <li><a href="javascript:;" class="link">超链接三</a></li>
+        </ul>
+    </body>
+```
+
+为父节点注册点击事件。
+
+当子节点被点击时，
+
+点击事件从子节点开始向父节点冒泡，
+
+父节点捕获到事件之后，执行时间函数内容，
+
+通过event.target拿到子节点`<a>`.从而获取相应的信息，做处理。
+
+事件是在冒泡阶段触发（子元素向父元素传递事件）。而父节点注册了事件函数，子节点没有注册事件函数，此时，会在父节点中执行函数体里的代码。
+
+总结
+
+事件委托，利用冒泡机制，减少事件绑定次数，减少了内存消耗，提高性能。
+
+### 键盘事件
+
+**判断是哪个键盘被按下**
+
+`event.keyCode` 获取案件编码
+
+`event.altKey`
+
+`event.ctrlKey`
+
+`event.shiftKey`
+
+判断这是哪个键是否被按下
+
+### 事件对象
+
+event
+
+pageX:光标相对于该网页的水平位置
+
+pageY：光标相对于网页的垂直位置
+
+clientX：光标相对于该网页的水平位置（当前可视位置）
+
+clientY：光标相对于该网页的垂直位置（当前可视位置）
+
+这俩数值一样，有滚动条时，会有不同，page包含滚动的距离
+
+target： 事件被传送到的对象
+
+screenX：光标相对于显示器的水平位置
+
+screenY：光标相对于显示器的垂直位置
+
+由于pageX 和 pageY的兼容性不好，我们可以这样做
+
+鼠标在页面的位置 = 滚动条滚动的距离 + 可视区域的坐标。
+
+var pagex = event.pageX || scroll().left + event.clientX;
+
+```js
+document.documentElement.scrollLeft,document.documentElement.scrollTop
+ console.log('event.pageX, event.pageY',event.pageX, event.pageY);
+        console.log('event.clientX',event.clientX,event.clientY)
+        console.log(document.body.scrollLeft,document.body.scrollTop);
+        console.log(window.pageXoffset,window.pageYoffset);
+        console.log(document.documentElement.scrollLeft,document.documentElement.scrollTop);
+
+```
+
+![](D:\笔记\web_docs\八股img\event.png)
+
+###  History对象
+
+操作浏览器向前或向后翻页
+
+属性：
+
+```
+history.length
+```
+
+浏览器历史列表中URL数量，只统计当前数量，浏览器关了会重置为1；
+
+方法：
+
+```
+history.back()
+```
+
+后退
+
+```
+history.forward()
+```
+
+跳转到下一页面，前进
+
+```js
+history.go(number)
+```
+
+### Location对象
+
+属性：
+
+```
+location.href
+location.href = 'https://xxx';
+```
+
+获取当前页面的url路径，或者跳转到指定路径。
+
+**window.location.href 是异步代码：**
+
+内行是起定时器异步执行的；
+
+**方法**1
+
+```
+location.assign(str)
+```
+
+用来跳转到其他的页面，作用和直接修改location.href一样
+
+**方法2**：
+
+```javascript
+    location.reload();
+```
+
+解释：用于重新加载当前页面，作用和刷新按钮一样。
+
+代码举例：
+
+```javascript
+    location.reload(); // 重新加载当前页面。
+    location.reload(true); // 在方法的参数中传递一个true，则会强制清空缓存刷新页面。
+
+```
+
+**方法3**：
+
+```javascript
+    location.replace();
+```
+
+解释：使用一个新的页面替换当前页面，调用完毕也会跳转页面。但不会生成历史记录，不能使用「后退按钮」后退。
+
+### 定时器
+
+常见方法
+
+- setInterval()：循环调用。将一段代码，**每隔一段时间**执行一次。（循环执行）
+
+- setTimeout()：延时调用。将一段代码，等待一段时间之后**再执行**。（只执行一次）
+
+## setInterval() 的使用
+
+`setInterval()`：循环调用。将一段代码，**每隔一段时间**执行一次。（循环执行）
+
+**参数**：
+
+- 参数1：回调函数，该函数会每隔一段时间被调用一次。
+
+- 参数2：每次调用的间隔时间，单位是毫秒。
+
+**返回值**：返回一个Number类型的数据。这个数字用来作为定时器的**唯一标识**，方便用来清除定时器。
+
+```js
+    let num = 1;
+   setInterval(function () {
+       num ++;
+       console.log(num);
+   }, 1000);
+```
+
+### 清除定时器
+
+定时器的返回值是作为这个定时器的**唯一标识**，可以用来清除定时器。具体方法是：假设定时器setInterval()的返回值是`参数1`，那么`clearInterval(参数1)`就可以清除定时器。
+
+setTimeout()的道理是一样的。
+
+代码举例：
+
+```js
+<script>
+    let num = 1;
+
+    const timer = setInterval(function () {
+        console.log(num);  //每间隔一秒，打印一次num的值
+        num ++;
+        if(num === 5) {  //打印四次之后，就清除定时器
+            clearInterval(timer);
+        }
+
+    }, 1000);
+</script>
+
+```
+
+## setTimeout() 的使用
+
+`setTimeout()`：延时调用。将一段代码，等待一段时间之后**再执行**。（只执行一次）
+
+**参数**：
+
+- 参数1：回调函数，该函数会每隔一段时间被调用一次。
+
+- 参数2：每次调用的间隔时间，单位是毫秒。
+
+**返回值**：返回一个Number类型的数据。这个数字用来作为定时器的**唯一标识**，方便用来清除定时器。
+
+### 定义和清除定时器
+
+代码举例：
+
+```javascript
+    const timer = setTimeout(function() {
+        console.log(1); // 3秒之后，再执行这段代码。
+    }, 3000);
+
+    clearTimeout(timer);
+
+```
+
+代码举例：（箭头函数写法）
+
+```javascript
+    setTimeout(() => {
+        console.log(1); // 3秒之后，再执行这段代码。
+    }, 3000);
+```
+
+# ES6
+
+引入新的原始数据类型Symbol，表示独一无二的值
+
+七种数据类型：number string boolean null undefined **object** Symbol
+
