@@ -1705,3 +1705,940 @@ setTimeout()的道理是一样的。
 
 七种数据类型：number string boolean null undefined **object** Symbol
 
+- Symbol属性对应的值是唯一的，解决命名冲突的问题
+- Symbol值不能和其他数据进行计算，包括同字符串拼串
+- for in/for of遍历时不会遍历Symbol属性
+
+## 创建Symbol属性值
+
+Symbol是函数，但并不是构造函数。创建一个Symbol数据类型：
+
+```javascript
+    let mySymbol = Symbol();
+
+    console.log(typeof mySymbol);  //打印结果：symbol
+    console.log(mySymbol);         //打印结果：Symbol()
+```
+
+打印结果：
+
+![](http://img.smyhvae.com/20180317_1134.png)
+
+下面来讲一下Symbol的使用。
+
+### 1、将Symbol作为对象的属性值
+
+```javascript
+    let mySymbol = Symbol();
+
+    let obj = {
+        name: 'smyhvae',
+        age: 26
+    };
+
+    //obj.mySymbol = 'male'; //错误：不能用 . 这个符号给对象添加 Symbol 属性。
+    obj[mySymbol] = 'hello';    //正确：通过**属性选择器**给对象添加 Symbol 属性。后面的属性值随便写。
+
+    console.log(obj);
+```
+
+上面的代码中，我们尝试给obj添加一个Symbol类型的属性值，但是添加的时候，不能采用`.`这个符号，而是应该用`属性选择器`的方式。打印结果：
+
+```
+{name: 'smyhvae', age: 26, Symbol(): 'hello'}
+```
+
+
+
+现在我们用for in尝试对上面的obj进行遍历：
+
+```javascript
+    let mySymbol = Symbol();
+
+    let obj = {
+        name: 'smyhvae',
+        age: 26
+    };
+
+    obj[mySymbol] = 'hello';
+
+    console.log(obj);
+
+    //遍历obj
+    for (let i in obj) {
+        console.log(i);
+    }
+```
+
+打印结果：
+
+```
+{name: 'smyhvae', age: 26, Symbol(): 'hello'}
+name
+ age
+```
+
+
+
+从打印结果中可以看到：for in、for of 遍历时不会遍历Symbol属性。
+
+### 创建Symbol属性值时，传参作为标识
+
+如果我通过 Symbol()函数创建了两个值，这两个值是不一样的：
+
+```javascript
+    let mySymbol1 = Symbol();
+    let mySymbol2 = Symbol();
+
+    console.log(mySymbol1 == mySymbol2); //打印结果：false
+    console.log(mySymbol1);         //打印结果：Symbol()
+    console.log(mySymbol2);         //打印结果：Symbol()
+```
+
+![](http://img.smyhvae.com/20180317_1134.png)
+
+上面代码中，倒数第三行的打印结果也就表明了，二者的值确实是不相等的。
+
+最后两行的打印结果却发现，二者的打印输出，肉眼看到的却相同。那该怎么区分它们呢？
+
+既然Symbol()是函数，函数就可以传入参数，我们可以通过参数的不同来作为**标识**。比如：
+
+
+```javascript
+    //在括号里加入参数，来标识不同的Symbol
+    let mySymbol1 = Symbol('one');
+    let mySymbol2 = Symbol('two');
+
+    console.log(mySymbol1 == mySymbol2); //打印结果：false
+    console.log(mySymbol1);         //打印结果：Symbol(one)
+    console.log(mySymbol2);         //打印结果：Symbol(two)。颜色为红色。
+    console.log(mySymbol2.toString());//打印结果：Symbol(two)。颜色为黑色。
+```
+
+打印结果：
+
+![](http://img.smyhvae.com/20180317_1134.png)
+
+### 定义常量
+
+Symbol 可以用来定义常量：
+
+
+```javascript
+    const MY_NAME = Symbol('my_name');
+```
+
+
+### 内置的 Symbol 值
+
+除了定义自己使用的 Symbol 值以外，ES6 还提供了 11 个内置的 Symbol 值，指向语言内部使用的方法。
+
+- `Symbol.iterator`属性
+
+对象的`Symbol.iterator`属性，指向该对象的默认遍历器方法。
+
+## ES6版本
+
+2015年6月正式发布，按照年份，可以称为ES2015
+
+ES6 是新的 JS 语法标准。**ES6 实际上是一个泛指，泛指 ES 2015 及后续的版本**。
+
+### 改进
+
+- 变量提升：let const 优化了这一点
+- 新增功能： 常量、作用域、对象代理、异步处理、类、继承
+
+### ES6转ES5语法设置
+
+babel 支持低端浏览器
+
+但是，在这之前，我们需要配置一下相关的环境。
+
+#### 建立工程目录
+
+（1）先建立一个空的工程目录 `ES6Demo`，并在目录下建立两个文件夹 `src`和 `dist`：
+
+-   `src`：书写 ES6 代码，我们写的 js 程序都放在这里。
+
+-   `dist`：利用 Babel 编译生成的 ES5 代码。**我们在 HTML 页面需要引入 dist 里的 js 文件**。
+
+（2）在 src 里新建文件 `index.html`：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Document</title>
+        <!-- 我们引入 ES5 中的 js 文件，而不是引入 ES6 中的 js 文件。 -->
+        <script src="./dist/index.js"></script>
+    </head>
+    <body></body>
+</html>
+```
+
+**注意**，上方代码中，我们引入的是`dist`目录下的 js 文件。
+
+然后我们新建文件 `src/index.js`：
+
+```javascript
+let a = 'smyhvae';
+const b = 'qianguyihao';
+
+console.log(a);
+console.log(b);
+```
+
+这个文件是一个 ES6 语法 的 js 文件，稍后，我们尝试把这个 ES6 语法的 js 文件转化为 ES5 的 js 文件。
+
+PS：我们在写代码时，能用单引号尽量用单引号，而不是双引号，前者在压缩之后，程序执行会更快。
+
+#### 全局安装 Babel-cli
+
+（1）初始化项目：
+
+在安装 Babel 之前，需要先用 npm init 先初始化我们的项目。打开终端或者通过 cmd 打开命令行工具，进入项目目录，输入如下命令：
+
+```bash
+	npm init -y
+```
+
+上方代码中，`-y` 代表全部默认同意，就不用一次次按回车了（稍后再根据需要，在文件中手动修改）。命令执行完成后，会在项目的根目录下生成 package.json 文件：
+
+```json
+{
+    "name": "es6demo",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "smyhvae",
+    "license": "ISC"
+}
+```
+
+PS：VS Code 里打开终端的快捷键是：`Contol + ~`。
+
+（2）全局安装 Babel-cli：
+
+在终端中输入以下命令：
+
+```bash
+	npm install -g babel-cli
+```
+
+![](http://img.smyhvae.com/20180304_1305.png)
+
+如果安装比较慢的话，Mac 下可以使用`cnpm`进行安装 ，windows 下可以使用`nrm`切换到 taobao 的镜像。
+
+（3）本地安装 babel-preset-es2015 和 babel-cli：
+
+```bash
+	npm install --save-dev babel-preset-es2015 babel-cli
+```
+
+![](http://img.smyhvae.com/20180304_1307.png)
+
+安装完成后，会发现`package.json`文件，已经多了 devDependencies 选项：
+
+![](https://img.smyhvae.com/20180304_1308.png)
+
+（4）新建.babelrc：
+
+在根目录下新建文件`.babelrc`，输入如下内容：
+
+```
+{
+    "presets":[
+        "es2015"
+    ],
+    "plugins":[]
+}
+```
+
+（5）开始转换：
+
+现在，我们应该可以将 ES6 的文件转化为 ES5 的文件了，命令如下：（此命令略显复杂）
+
+```
+	babel src/index.js -o dist/index.js
+```
+
+我们可以将上面这个命令进行简化一下。操作如下：
+
+在文件 `package.json` 中修改键 `scripts`中的内容：
+
+```json
+  "scripts": {
+    "build": "babel src/index.js -o dist/index.js"
+  },
+```
+
+修改后的效果如下：
+
+![](https://img.smyhvae.com/20180304_1315.png)
+
+目前为止，环境配置好了。以后，我们执行如下命令，即可将`src/index.js`这个 ES6 文件转化为 `dist/index.js`这个 ES5 文件：
+
+```bash
+	npm run build
+```
+
+我们执行上面的命令之后，会发现， dist 目录下会生成 ES5 的 js 文件：
+
+index.js：
+
+```javascript
+'use strict';
+
+var a = 'smyhvae';
+var b = 'qianguyihao';
+
+console.log(a);
+console.log(b);
+```
+
+当我们打开网页后，就可以在浏览器的控制台，看到代码的输出结果。
+
+## JSON对象
+
+1.js对象->json对象（数组）
+
+```
+JSON.stringify(obj/arr)
+```
+
+2.json对象（数组）->js对象
+
+```
+JSON.parse(json)
+```
+
+常说的json字符串只有两种：json对象、json数组
+
+typeof json字符串 返回string
+
+## ES5  Object的扩展
+
+**方法一**：
+
+```
+object.create(prototype,[descriptors])
+```
+
+以指定对象为原型，创建新的对象。
+
+第二个参数为新的对象添加的新属性。
+
+```
+var obj1={username: 'smyhvae', age: 26};
+ var obj2 = {address:'shenzhen'};
+ 
+     obj2 = Object.create(obj1);
+    console.log(obj2.address);
+```
+
+obj1成为了obj2的原型
+
+```
+{}
+[[Prototype]]: Object
+    age: 26
+    username: "smyhvae"
+[[Prototype]]: Object
+```
+
+obj2原本的属性被覆盖
+
+**举例2**：（有第二个参数时）
+
+第二个参数可以给新的对象添加新的属性。我们修改上面的代码，尝试给obj2添加新属性`sex`：
+
+```javascript
+    var obj1 = {username: 'smyhvae', age: 26};
+    var obj2 = {address: 'shenzhen'};
+
+    obj2 = Object.create(obj1, {
+        sex: {//给obj2添加新的属性`sex`。注意，这一行的冒号不要漏掉
+            value: '男',  //通过value关键字设置sex的属性值
+            writable: false,
+            configurable: true,
+            enumerable: true
+        }
+    });
+
+    console.log(obj2);
+
+```
+
+上方代码中，我们通过第5行的sex给obj2设置了一个新的属性`sex`，但是要通过`value`来设置属性值（第6行）。
+
+设置完属性值后，这个属性值默认是不可修改的，要通过`writable`来设置。总而言之，这几个关键字的解释如下：
+
+- `value`：设置属性值。
+
+- `writable`：标识当前属性值是否可修改。如果不写的话，默认为false，不可修改。
+
+- `configurable`：标识当前属性是否可以被删除。默认为false，不可删除。
+
+- `enumerable`：标识当前属性是否能用 for in 枚举。 默认为false，不可。
+
+**方法二**
+
+```
+	Object.defineProperties(object, descriptors)
+```
+
+**作用**：为指定对象定义扩展多个属性。
+
+代码举例：
+
+
+```javascript
+    var obj2 = {
+        firstName : 'smyh',
+        lastName : 'vae'
+    };
+    Object.defineProperties(obj2, {
+        fullName : {
+            get : function () {
+                return this.firstName + '-' + this.lastName
+            },
+            set : function (data) {  //监听扩展属性，当扩展属性发生变化的时候自动调用，自动调用后将变化的值作为实参注入到set函数
+                var names = data.split('-');
+                this.firstName = names[0];
+                this.lastName = names[1];
+            }
+        }
+    });
+    console.log(obj2.fullName);
+    obj2.firstName = 'tim';
+    obj2.lastName = 'duncan';
+    console.log(obj2.fullName);
+    obj2.fullName = 'kobe-bryant';
+    console.log(obj2.fullName);
+```
+
+- get ：用来获取当前属性值的回调函数
+
+- set ：修改当前属性值得触发的回调函数，并且实参即为修改后的值
+
+存取器属性：setter,getter一个用来存值，一个用来取值。
+
+结果：
+
+```
+smyh-vae
+tim-duncan
+kobe-bryant
+```
+
+## Object的扩展（二）
+
+obj对象本身就自带了两个方法。格式如下：
+
+
+```javascript
+get 属性名(){} 用来得到当前属性值的回调函数
+
+set 属性名(){} 用来监视当前属性值变化的回调函数
+
+```
+
+举例如下：
+
+```javascript
+    var obj = {
+        firstName : 'kobe',
+        lastName : 'bryant',
+        get fullName(){
+            return this.firstName + ' ' + this.lastName
+        },
+        set fullName(data){
+            var names = data.split(' ');
+            this.firstName = names[0];
+            this.lastName = names[1];
+        }
+    };
+    console.log(obj.fullName);
+    obj.fullName = 'curry stephen';
+    console.log(obj.fullName);
+```
+
+
+## 数组扩展
+
+常用方法，给数组实例用
+
+**方法1**：
+
+
+```javascript
+	Array.prototype.indexOf(value)
+```
+
+作用：获取 value 在数组中的第一个下标。
+
+**方法2**：
+
+
+```javascript
+	Array.prototype.lastIndexOf(value)
+```
+
+作用：获取 value 在数组中的最后一个下标。
+
+**方法3**：遍历数组
+
+
+```javascript
+	Array.prototype.forEach(function(item, index){})
+```
+
+
+**方法4**：
+
+```javascript
+	Array.prototype.map(function(item, index){})
+```
+
+作用：遍历数组返回一个新的数组，返回的是**加工之后**的新数组。
+
+
+**方法5**：
+
+```javascript
+	Array.prototype.filter(function(item, index){})
+```
+
+作用：遍历过滤出一个新的子数组，返回条件为true的值。
+
+## 函数function的扩展：bind()
+
+> ES5中新增了`bind()`函数来改变this的指向。
+
+
+```javascript
+	Function.prototype.bind(obj)
+```
+
+作用：将函数内的this绑定为obj, 并将函数返回。
+
+**面试题**: call()、apply()和bind()的区别：
+
+- 都能改变this的指向
+
+- call()/apply()是**立即调用函数**
+
+- bind()：绑定完this后，不会立即调用当前函数，而是**将函数返回**，因此后面还需要再加`()`才能调用。
+
+PS：bind()传参的方式和call()一样。
+
+**分析**：
+
+为什么ES5中要加入bind()方法来改变this的指向呢？因为bind()不会立即调用当前函数。
+
+bind()通常使用在回调函数中，因为回调函数并不会立即调用。如果你希望在回调函数中改变this，不妨使用bind()。
+
+## 变量提升
+
+新增let和const
+
+- let 定义变量，替代var
+- const 定义常量 （定义后不可修改）
+
+var：
+
+使用var声明的变量不具备块级作用域特征
+
+var定义的变量容易造成全局污染
+
+#### let
+
+用 let 定义的变量 i，只在`{ }`这个**块级作用域**里生效。
+
+#### const
+
+定义常量
+
+值不能变化
+
+只在局部作用域起作用
+
+const声明时，必须赋值，否则报错
+
+#### 暂时性死区 DTC
+
+ES6 规定：使用 let/const 声明的变量，会使区块形成封闭的作用域。若在声明之前使用变量，就会报错。
+
+也就是说，在使用 let/const 声明变量时，**变量需要先声明，再使用**（声明语句必须放在使用之前）。这在语法上，称为 “暂时性死区”（ temporal dead zone，简称 TDZ）。
+
+DTC 其实是一种保护机制，可以让我们养成良好的编程习惯。
+
+## 解构
+
+**对象解构**
+
+使用自定义名字解构
+
+```
+person={name:'wxq',age:18};
+let {name:myname,age:myage}=person;
+
+console.log(myname)//wxq
+console.log(myage) //18
+
+console.log(name) //error name is not defined 
+
+```
+
+**圆括号使用**
+
+如果变量在解构之前就以及定义了，你再去解构就会有错误,可以在解构语句外面加一个圆括号解决错误
+
+```
+let foo='haha'
+({foo}={foo:'smyhvae'})
+console.log(foo); //输出结果：smyhvae
+```
+
+**字符串解构**
+
+字符串也可以解构，这是因为，此时字符串被转换成了一个类似数组的对象。
+
+```
+const [a, b, c, d] = 'hello';
+console.log(a);
+console.log(b);
+console.log(c);
+
+console.log(typeof a); //输出结果：string
+```
+
+结果
+
+```
+h
+e
+l
+string
+```
+
+## 箭头函数
+
+**调用箭头函数**
+
+将箭头函数赋值给一个变量，通过变量名调用函数；
+
+也可以直接使用箭头函数。
+
+箭头函数的this
+
+this 指向的是**箭头函数定义位置的 this**（也就是说，箭头函数在哪个位置定义的，this 就跟这个位置的 this 指向相同）。
+
+```
+const obj = { name: '千古壹号' };
+
+function fn1() {
+    console.log(this); // 第一个 this
+    return () => {
+        console.log(this); // 第二个 this
+    };
+}
+
+const fn2 = fn1.call(obj);
+fn2();
+```
+
+打印结果：
+
+```
+obj
+obj
+```
+
+代码解释：（一定要好好理解下面这句话）
+
+上面的代码中，箭头函数是在 fn1()函数里面定义的，所以第二个 this 跟 第一个 this 指向的是**同一个位置**。又因为，在执行 `fn1.call(obj)`之后，第一个 this 就指向了 obj，所以第二个 this 也是指向 了 obj。
+
+## 默认值
+
+默认值的后面，不能再有**没有默认值的变量**。比如`(a,b,c)`这三个参数，如果我给 b 设置了默认值，那么就一定要给 c 设置默认值。
+
+我们来看下面这段代码：
+
+```javascript
+let x = 'smyh';
+function fn(x, y = x) {
+    console.log(x, y);
+}
+fn('vae');
+```
+
+注意第二行代码，我们给 y 赋值为`x`，这里的`x`是括号里的第一个参数，并不是第一行代码里定义的`x`。打印结果：`vae vae`。
+
+如果我把第一个参数改一下，改成：
+
+```javascript
+let x = 'smyh';
+function fn(z, y = x) {
+    console.log(z, y);
+}
+fn('vae');
+```
+
+此时打印结果是：`vae smyh`。
+
+## 剩余参数
+
+
+
+```javascript
+const fn = (...args) => {
+    //当不确定方法的参数时，可以使用剩余参数
+    console.log(args[0]);
+    console.log(args[1]);
+    console.log(args[2]);
+    console.log(args[3]);
+};
+
+fn(1, 2);
+fn(1, 2, 3); //方法的定义中了四个参数，但调用函数时只使用了三个参数，ES6 中并不会报错。
+```
+
+打印结果：
+
+```bash
+1
+2
+undefined
+undefined
+
+
+1
+2
+3
+undefined
+```
+
+上方代码中注意，args 参数之后，不能再加别的参数，否则编译报错。
+
+下面这段代码，也是利用到了剩余参数：
+
+```js
+function fn1(first, ...args) {
+    console.log(first); // 10
+    console.log(args); // 数组：[20, 30]
+}
+
+fn1(10, 20, 30);
+```
+
+## 扩展运算符
+
+...arr
+
+而扩展运算符是将数组或者对象拆分成逗号分隔的参数序列。
+
+## 字符串的扩展
+
+> 下面提到的字符串的几个方法，更详细的内容，可以看《04-JavaScript 基础/内置对象 String：字符串的常见方法.md》。
+
+ES6 中的字符串扩展如下：
+
+-   `includes(str)`：判断是否包含指定的字符串
+
+-   `startsWith(str)`：判断是否以指定字符串开头
+
+-   `endsWith(str)`：判断是否以指定字符串结尾
+
+-   `repeat(count)`：重复指定次数
+
+举例如下：
+
+```javascript
+let str = 'abcdefg';
+
+console.log(str.includes('a')); //true
+console.log(str.includes('h')); //false
+
+//startsWith(str) : 判断是否以指定字符串开头
+console.log(str.startsWith('a')); //true
+console.log(str.startsWith('d')); //false
+
+//endsWith(str) : 判断是否以指定字符串结尾
+console.log(str.endsWith('g')); //true
+console.log(str.endsWith('d')); //false
+
+//repeat(count) : 重复指定次数a
+console.log(str.repeat(5));
+```
+
+## 对象的扩展
+
+### 扩展 1
+
+```javascript
+Object.is(v1, v2);
+```
+
+**作用：**判断两个数据是否完全相等。底层是通过**字符串**来判断的。
+
+我们先来看下面这两行代码的打印结果：
+
+```javascript
+console.log(0 == -0);
+console.log(NaN == NaN);
+```
+
+打印结果：
+
+```
+	true
+	false
+```
+
+上方代码中，第一行代码的打印结果为 true，这个很好理解。第二行代码的打印结果为 false，因为 NaN 和任何值都不相等。
+
+但是，如果换成下面这种方式来比较：
+
+```javascript
+console.log(Object.is(0, -0));
+console.log(Object.is(NaN, NaN));
+```
+
+打印结果却是：
+
+```bash
+	false
+	true
+```
+
+代码解释：还是刚刚说的那样，`Object.is(v1, v2)`比较的是字符串是否相等。
+
+### Object.assign()
+
+Object.assign() 在实战开发中，使用到的频率非常高，一定要重视。关于它的内容，详见《04-JavaScript 基础/浅拷贝和深拷贝.md》。
+
+### 扩展 3：`__proto__`属性
+
+举例：
+
+```javascript
+let obj1 = { name: 'smyhvae' };
+let obj2 = {};
+
+obj2.__proto__ = obj1;
+
+console.log(obj1);
+console.log(obj2);
+console.log(obj2.name);
+```
+
+打印结果：
+
+![](http://img.smyhvae.com/20180404_2251.png)
+
+上方代码中，obj2 本身是没有属性的，但是通过`__proto__`属性和 obj1 产生关联，于是就可以获得 obj1 里的属性。
+
+## set
+
+数组去重
+
+```
+const set2 = new Set(['张三', '李四', '王五', '张三']); // 注意，这个数组里有重复的值
+
+// 注意，这里的 set2 并不是数组，而是一个单纯的 Set 数据结构
+console.log(set2); // {"张三", "李四", "王五"}
+
+// 通过扩展运算符，拿到 set 中的元素（用逗号分隔的序列）
+// ...set2 //  "张三", "李四", "王五"
+
+// 注意，到这一步，才获取到了真正的数组
+console.log([...set2]); // ["张三", "李四", "王五"]
+```
+
+注意上方的第一行代码，虽然参数里传递的是数组结构，但拿到的 `set2` 不是数组结构，而是 Set 结构，而且里面元素是去重了的。通过 `[...set2]`就可以拿到`set2`对应的数组。
+
+## 同步任务和异步任务
+
+-   同步任务：在**主线程**上排队执行的任务。只有前一个任务执行完毕，才能执行下一个任务。
+
+-   异步任务：不进入主线程、而是进入**任务队列**（Event Queue）的任务，该任务不会阻塞后面的任务执行。只有"任务队列"通知主线程，某个异步任务可以执行了，该任务才会进入主线程执行。
+
+### 前端使用异步编程的场景
+
+什么时候需要**等待**，就什么时候用异步。常见的异步场景如下：
+
+-   1、事件监听（比如说，按钮绑定点击事件之后，用户爱点不点。我们不可能卡在按钮那里，什么都不做。所以，应该用异步）
+-   2、回调函数：
+    -   2.1、定时器：setTimeout（定时炸弹）、setInterval（循环执行）
+    -   2.2、ajax请求。
+    -   2.3、Node.js 中的一些方法回调。
+-   3、ES6 中的 Promise、Generator、async/await
+
+现在的大部分软件项目，都是前后端分离的。后端生成接口，前端请求接口。前端发送 ajax 请求，向后端请求数据，然后**等待一段时间**后，才能拿到数据。这个请求过程就是异步任务。
+
+### 接口调用的方式
+
+js 中常见的接口调用方式，有以下几种：
+
+-   原生 ajax、基于 jQuery 的 ajax
+-   Promise
+-   Fetch
+-   axios
+
+## 事件循环机制
+
+![](http://img.smyhvae.com/20210517_1431.png)
+
+执行顺序如下：
+
+-   同步任务：进入主线程后，立即执行。
+
+-   异步任务：会先进入 Event Table；等时间到了之后，再进入 Event Queue，然后排队（为什么要排队？因为同一时间，JS 只能执行一个任务）。比如说，`setTimeout(()=> {}, 1000)`这种定时器任务，需要等一秒之后再进入 Event Queue。
+
+-   当主线程的任务执行完毕之后，此时主线程处于空闲状态，于是会去读取 Event Queue 中的任务队列，如果有任务，则进入到主线程去执行。
+
+### 多次异步调用的顺序
+
+-   多次异步调用的结果，顺序可能不同步。
+
+-   异步调用的结果如果**存在依赖**，则需要通过回调函数进行嵌套。
+
+## 同源和跨域
+
+## 同源
+
+同源策略是浏览器的一种安全策略，所谓同源是指，域名，协议，端口完全相同。
+
+## 跨域问题的解决方案
+
+从我自己的网站访问别人网站的内容，就叫跨域。
+
+![](http://img.smyhvae.com/20180228_2231.png)
+
+出于安全性考虑，浏览器不允许ajax跨域获取数据。
+
+
+- iframe：处于安全性考虑，浏览器的开发厂商已经禁止了这种方式。
+- JSONP：script 标签的 src 属性传递数据。
+
+**JSONP**
+
+利用**script标签**可以跨域的特性
+
+由**服务端**返回一个预先定义好的**JS函数的调用**
+
+并将**服务器数据**以**函数参数的**形式传递归来
+
+**标签 src属性支持跨域，**
+
+**跨域跨域的标签：**
+
+img script link iframe
+

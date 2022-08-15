@@ -1052,3 +1052,16 @@ static tableMarker = {
 
 
 AutogenRegionRenderer
+
+
+
+
+问题：
+输入时 hover的不显示bar  完成
+hover全部表格出现悬浮框，点击等号只显示上边的
+选中的包含文字 
+
+
+getEndOfSection(spacerIndex: number)
+getParagraphRange(charIndex: number)
+````
