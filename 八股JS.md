@@ -2610,11 +2610,17 @@ js 中常见的接口调用方式，有以下几种：
 
 -   异步调用的结果如果**存在依赖**，则需要通过回调函数进行嵌套。
 
+
+
 ## 同源和跨域
+
+
 
 ## 同源
 
 同源策略是浏览器的一种安全策略，所谓同源是指，域名，协议，端口完全相同。
+
+
 
 ## 跨域问题的解决方案
 
@@ -2636,9 +2642,808 @@ js 中常见的接口调用方式，有以下几种：
 
 并将**服务器数据**以**函数参数的**形式传递归来
 
+
+
 **标签 src属性支持跨域，**
 
 **跨域跨域的标签：**
 
 img script link iframe
+
+```html
+<script type="text/javascript"  src='http://192.168.141.137/2018-02-28/myData.php'></script>
+```
+
+刷新A服务器上的index页面后，会去请求 B 服务器上的 `myData.php` 这个页面。而且请求的方式是 get 请求。
+
+**jsonp 只能通过 GET 方式进行请求。**
+
+实现步骤
+
+A客户端
+
+```html
+<script type="text/javascript">
+
+	// 定义 eatFood()方法
+	function fn(data) {
+		console.log('我被调用了哦');
+		console.log(data);
+	}
+</script>
+
+<script type="text/javascript" src='http://192.168.141.137/01.php?callback1=fn'></script>
+```
+
+A 客户端请求的是 B服务器上的 `01.php`页面。url里有个`callback1=fn`，意思是：callback1是A和B 之间的约定，约定后，将执行方法 fn。
+
+其实，fn方法已经在最后一行代码中执行了。只不过，fn方法里的data数据，是从 B 服务器中获取的。
+
+B服务器
+
+```php
+<?php
+    $mycallBack = $_GET['callback1'];
+
+	$arr = array("zhangsan","lisi","zhaoliu");
+
+    echo $mycallBack."(".json_encode($arr).")";    //字符串拼接
+?>
+```
+
+第一行的`callback1` 是A和B之间的约定，二者必须一致。
+
+echo语句中输出的内容，即要返回给A客户端的内容，此内容会保存在 A 客户端的fn方法的data里。 data[0]指的是 zhangsan。
+
+`json_encode`指的是，将php对象转化为 json。
+
+## Promise
+
+避免回调地狱的情况
+
+通过同步的表现形式来书写异步代码
+
+好处：
+
+- 解决回调地狱
+- 语法简洁，可读性强 ，便于后期维护
+- Promise对象提供了简洁的API
+
+Promise伪代码结构
+
+```js
+myPromise()
+.then(
+	function(){},
+	function(){}
+)
+.then(
+	function(){},
+	function(){}
+)
+.then(
+	function(){},
+	function(){}
+)
+
+```
+
+### 用法和状态
+
+使用的**基本步骤**
+
+1. 通过`new Promise()`构造一个promise实例。
+
+   Promise的构造函数传入一个参数，是一个函数，用于处理异步任务
+
+2. 函数中传入两个参数：resolve reject。
+
+   分别表示**异步执行成功**后的回调函数和**异步执行失败**后的回调函数
+
+   代表着我们需要**改变当前实例的状态**到**已完成**或是**已拒绝**
+
+3. 通过`promise.then()`和`promise.catch()`处理返回结果
+
+   promise表示Promise的实例
+
+Promise的精髓在于对异步操作的状态管理
+
+三个**状态**
+
+- 初始化（等待中）:pending
+- 成功：fulfilled
+- 失败：rejected
+
+**状态管理**步骤
+
+1. new Promise()执行之后，promise对象的状态会被初始化为pending，这是初始状态。
+
+   new Promise()，括号里的内容是同步执行的，
+
+   括号里可以再定义一个异步任务，两个参数：resolve和reject
+
+   - 请求成功，执行resolve()，promise状态自动改为fulfilled
+   - 请求失败，执行reject()，promise状态自动改为rejected
+
+2. promise.then():
+
+   只有promise的状态被改变之后，才会走到then和catch
+
+   在 new Promise()的时候，
+
+   如果**没有写 resolve()**，则 promise.**then() 不执行**；
+
+   如果**没有写 reject()**，则 promise.**catch() 不执行**。
+
+   then()括号里有两个参数，是两个函数function1，function2
+
+   - fulfilled，执行function1
+   - rejected，执行function2
+
+   resolve()和 reject()这两个方法，是可以给 promise.then()传递参数的。
+
+状态改变，处理状态伪代码
+
+```js
+//创建实例
+let promise=new Promise((resolve,reject)=>{
+  //进来，状态为pending
+  console.log('同步代码')；//同步代码 会立刻执行
+  //写异步代码，比如ajax请求或定时器
+  if(异步Ajax请求成功){
+    resolve('请求成功，并传参') //成功，
+    //用resolve传参并改状态为fulfilled
+  }else{
+    reject('请求失败，并传参')；//失败
+    //用reject传参并该状态为rejected
+  }
+})
+console.log('222');
+
+//调用then 处理成功和失败
+
+promise.then(
+	(successMsg)=>{
+    console.log(successMsg,'成功')
+    //successMsg是resolve传过来的参数
+  },
+  (errorMsg)=>{
+    console.log(errorMsg,'失败')
+     //errorMsg是reject传过来的参数
+  }
+)
+
+```
+
+promise代码执行：
+
+例一：
+
+```js
+const promiseA = new Promise((resolve, reject) => {});
+console.log(promiseA);
+```
+
+没调用resolve 和reject 所以状态为pending
+
+例二：
+
+```js
+new Promise((resolve, reject) => {
+    console.log('promise1'); // 这行代码是同步代码，会立即执行
+}).then((res) => {
+    console.log('promise then:' + res);//不会打印、
+  //因为没有resolve和reject改变状态，不会进入then
+```
+
+打印结果：
+
+```
+promise1
+```
+
+第二个打印不会执行
+
+没有resolve和reject改变状态，不会进入then
+
+如果前面没有写 `resolve()`，那么后面的 `.then`是不会执行的。
+
+例三：
+
+```js
+new Promise((resolve, reject) => {
+    resolve();
+    console.log('promise1'); // 代码1：同步任务，会立即执行
+}).then(res => {
+    console.log('promise  then'); // 代码2：异步任务中的微任务
+});
+
+console.log('千古壹号'); // 代码3：同步任务
+```
+
+打印结果：
+
+```
+promise1
+千古壹号
+promise  then
+```
+
+### Promise 的状态一旦改变，就不能再变
+
+代码举例：
+
+```js
+const p = new Promise((resolve, reject) => {
+    resolve(1); // 代码执行到这里时， promise状态是 fulfilled
+    reject(2); // 尝试修改状态为 rejected，是不行的。因为状态执行到上一行时，已经被改变了。
+});
+
+p.then((res) => {
+    console.log(res);
+}).catch((err) => {
+    console.log(err);
+});
+```
+
+上方代码的打印结果是 1，而不是 2，详见注释。
+
+**Promise 的状态改变，是不可逆的**
+
+### Promise 的状态改变，是不可逆的
+
+### 小结
+
+1、promise 有三种状态：等待中、成功、失败。等待中状态可以更改为成功或失败，已经更改过状态后⽆法继续更改（例如从失败改为成功）。
+
+2、promise 实例中需要传⼊⼀个函数，这个函数接收两个参数，执⾏第⼀个参数之后就会改变当前 promise 为「成功」状态，执⾏第⼆个参数之后就会变为「失败」状态。
+
+3、通过 .then ⽅法，即可在上⼀个 promise 达到成功时继续执⾏下⼀个函数或 promise。同时通过 resolve 或 reject 时传⼊参数，即可给下⼀个函数或 promise 传⼊初始值。
+
+4、失败的 promise，后续可以通过 promise 自带的 .catch ⽅法或是 .then ⽅法的第⼆个参数进⾏捕获。
+
+### promise封装定时器
+
+```js
+function myPromise(){
+  return new Promise((resolve)=>{
+    setTimeout(resolve,1000);
+  })
+}
+//一秒后改变状态为fulfilled，这样就可以执行then
+myPromise().then(()=>{
+  console.log('延迟执行的回调函数')
+})
+```
+
+### Promise 写法
+
+有了 Promise 之后，我们不需要传入回调函数，而是：
+
+-   先将 promise 实例化；
+
+-   然后在原来执行回调函数的地方，改为执行对应的改变 promise 状态的函数；
+
+-   并通过 then ... catch 或者 then ...then 等写法，实现链式调用，提高代码可读性。
+
+和传统写法相比，promise 在写法上的大致区别是：定义异步函数的时候，将 callback 改为 resolve 和 reject，待状态改变之后，我们在外面控制具体执行哪些函数
+
+
+
+Ajax封装
+
+传统封装
+
+```js
+//回调函数success fail 
+function ajax (url,success,fail){
+	var xhr=new XMLHttpRequest();
+  xhr.open('GET',url);
+  xhr.send();
+  xhr.onreadystatechange=function(){
+    if(xhr.readystate===4&&xhr.status=200){
+      success&&success(xhr.responseText)
+    }else{
+      fail&&fail(new Error('接口请求失败'))
+    }
+  }
+}
+
+//执行
+ajax('/a.json',
+    (res)=>{ console.log('qianguyihao 第一个接口请求成功:' + JSON.stringify(res));},
+     (err)=>{console.log('qianguyihao 请求失败:' + JSON.stringify(err));}
+    )
+```
+
+传统写法需要传入回调函数
+
+Promise封装
+
+```js
+//回调函数success fail 
+function ajax (url,success,fail){
+	var xhr=new XMLHttpRequest();
+  xhr.open('GET',url);
+  xhr.send();
+  xhr.onreadystatechange=function(){
+    if(xhr.readystate===4&&xhr.status=200){
+      success&&success(xhr.responseText)
+    }else{
+      fail&&fail(new Error('接口请求失败'))
+    }
+  }
+}
+
+function promiseA(){
+  return new Promise((resolve,reject)=>{
+    ajax(url,
+         (res)=>{
+            if(res.retCode==0){
+              resolve('request sucess'+res);
+            }else{
+							reject({ retCode: -1, msg: 'network error' })
+            }
+   			 });
+  })
+}
+
+const promiseB = new Promise((resolve, reject) => {
+    ajax('xxx_a.json', 
+         (res) => {
+        // 这里的 res 是接口的返回结果。返回码 retCode 是动态数据。
+        if (res.retCode == 0) {
+            // 接口请求成功时调用
+            resolve('request success' + res);
+        } else {
+            // 接口请求失败时调用
+            reject({ retCode: -1, msg: 'network error' });
+        }
+    });
+});
+
+promiseA()
+				.then((res)=>{
+  				console.log(res);})
+				.catch((err)=>{
+  				console.log(err);})
+```
+
+`promiseA().then().catch()`和`promiseA().catch().then()`区别在于：前者可以捕获到 `then` 里面的异常，后者不可以。
+
+### Promise的链式调用
+
+要想链式调用，then 必须是返回一个promise
+
+初步写法
+
+```js
+// 封装 ajax 请求：传入回调函数 success 和 fail
+function ajax(url, success, fail) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('GET', url);
+    xmlhttp.send();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            success && success(xmlhttp.responseText);
+        } else {
+            fail && fail(new Error('接口请求失败'));
+        }
+    };
+}
+
+newPromise((resolve,reject)=>{
+  ajax(url,(res)=>{
+    console.log(res);
+    resolve();
+  })
+})
+.then((res)=>{
+  console('a成功')；
+  return new Promise((resolve,reject)=>{
+    ajax(burl,(res)=>{
+      console.log(res);
+      resolve();
+    })
+  })
+})
+.then((res)=>{
+  console('b成功')；
+  return new Promise((resolve,reject)=>{
+    ajax(curl,(res)=>{
+      console.log(res);
+      resolve();
+    })
+  })
+})
+.then((res)=>{
+  console.log('c成功')
+})
+
+```
+
+封装写法
+
+```js
+// 封装 ajax 请求：传入回调函数 success 和 fail
+function ajax(url, success, fail) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('GET', url);
+    xmlhttp.send();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            success && success(xmlhttp.responseText);
+        } else {
+            fail && fail(new Error('接口请求失败'));
+        }
+    };
+}
+
+
+//promise封装接口
+function request1(){
+  return new Promise((resolve,reject)=>{
+    ajax('https://www.baidu.com',(res)=>{
+      if(res.retCode==201){
+        resolve('resolve1 success'+res);
+      }else{
+        reject('接口1请求是吧')
+      }
+    })
+  })
+}
+// Promise 封装接口2
+function request2() {
+    return new Promise((resolve, reject) => {
+        ajax('https://www.jd.com', (res) => {
+            if (res.retCode == 202) {
+                // 这里的 res 是接口2的返回结果
+                resolve('request2 success' + res);
+            } else {
+                reject('接口2请求失败');
+            }
+        });
+    });
+}
+
+// Promise 封装接口3
+function request3() {
+    return new Promise((resolve, reject) => {
+        ajax('https://www.taobao.com', (res) => {
+            if (res.retCode == 203) {
+                // 这里的 res 是接口3的返回结果
+                resolve('request3 success' + res);
+            } else {
+                reject('接口3请求失败');
+            }
+        });
+    });
+}
+
+// 先发起request1，等resolve后再发起request2；紧接着，等 request2有了 resolve之后，再发起 request3
+request1()
+.then((res1)=>{
+  	console.log(res1)
+  	return request2();
+})
+.then((res2)=>{
+  	console.log(res2)
+  	return request3();
+})
+.then((res3)=>{
+  	console.log(res3)
+})
+.catch((err)=>{
+  console.log(err)
+})
+```
+
+
+
+### 链式调用，如何处理 reject 失败状态
+
+#### 例 1：不处理 reject
+
+```js
+getPromise('a.json')
+    .then(
+        (res) => {
+            console.log(res);
+            return getPromise('b.json'); // 继续请求 b
+        },
+        (err) => {
+            // a 请求失败
+            console.log('a: err');
+        }
+    )
+    .then((res) => {
+        // b 请求成功
+        console.log(res);
+        return getPromise('c.json'); // 继续请求 c
+    })
+    .then((res) => {
+        // c 请求成功
+        console.log('c：success');
+    });
+```
+
+上面的代码中，假设 a 请求失败，那么，后面的代码会怎么走呢？
+
+打印结果：
+
+```
+a: err
+undefined
+c：success
+```
+
+我们可以看到，虽然 a 请求失败，但后续的请求依然会继续执行。
+
+为何打印结果的第二行是 undefined？这是因为，当 a 请求走到 reject 之后，我们并没有做任何处理。这就导致，代码走到第二个 `then`的时候，**其实是在执行一个空的 promise**。
+
+#### 例 2：单独处理 reject
+
+```js
+getPromise('a.json')
+    .then(
+        (res) => {
+            console.log(res);
+            return getPromise('b.json'); // 继续请求 b
+        },
+        (err) => {
+            // a 请求失败
+            console.log('a: err');
+            // 【重要】即使 a 请求失败，也依然继续执行 b请求
+            return getPromise('b.json');
+        }
+    )
+    .then((res) => {
+        // b 请求成功
+        console.log(res);
+        return getPromise('c.json'); // 继续请求 c
+    })
+    .then((res) => {
+        // c 请求成功
+        console.log('c：success');
+    });
+```
+
+跟例 1 相比，例 2 在 reject 中增加了一行`return getPromise('b.json')`，意味着，即使 a 请求失败，也要继续执行 b。
+
+这段代码，我们是单独处理了 a 请求失败的情况。
+
+
+
+#### 统一处理 reject
+
+针对 a、b、c 这三个请求，不管哪个请求失败，我都希望做统一处理。这种代码要怎么写呢?我们可以在最后面写一个 catch。
+
+代码举例如下：
+
+```js
+getPromise('a.json')
+    .then((res) => {
+        console.log(res);
+        return getPromise('b.json'); // 继续请求 b
+    })
+    .then((res) => {
+        // b 请求成功
+        console.log(res);
+        return getPromise('c.json'); // 继续请求 c
+    })
+    .then((res) => {
+        // c 请求成功
+        console.log('c：success');
+    })
+    .catch((err) => {
+        // 统一处理请求失败
+        console.log(err);
+    });
+```
+
+上面的代码中，由于是统一处理多个请求的异常，所以**只要有一个请求失败了，就会马上走到 catch**，**剩下的请求就不会继续执行了**。比如说：
+
+-   a 请求失败：然后会走到 catch，不执行 b 和 c
+
+-   a 请求成功，b 请求失败：然后会走到 catch，不执行 c。
+
+## return 的返回值
+
+return 后面的返回值，有两种情况：
+
+-   情况 1：返回 Promise 实例对象。返回的该实例对象会调用下一个 then。
+
+-   情况 2：返回普通值。返回的普通值会直接传递给下一个 then，通过 then 参数中函数的参数接收该值。
+
+我们针对上面这两种情况，详细解释一下。
+
+### 情况 1：返回 Promise 实例对象
+
+举例如下：
+
+```js
+getPromise('a.json')
+    .then((res) => {
+        // a 请求成功。从 resolve 获取正常结果：接口请求成功后，打印a接口的返回结果
+        console.log(res);
+        // 这里的 return，返回的是 Promise 实例对象
+        return new Promise((resolve, reject) => {
+            resolve('qianguyihao');
+        });
+    })
+    .then((res) => {
+        console.log(res);
+    });
+```
+
+### 情况 2：返回 普通值
+
+```js
+getPromise('a.json')
+    .then((res) => {
+        // a 请求成功。从 resolve 获取正常结果：接口请求成功后，打印a接口的返回结果
+        console.log(res);
+        // 返回普通值
+        return 'qianguyihao';
+    })
+    /*
+        既然上方代码并没有返回 promise，那么，这里的 then 是谁来调用呢？
+        答案是：这里会产生一个新的 默认的 promise实例，来调用这里的then，确保可以继续进行链式操作。
+    */
+    .then((res2) => {
+        // 这里的 res2 接收的是 普通值 'qianguyihao'
+        console.log(res2);
+    });
+```
+
+深拷贝
+
+改进版
+
+考虑了set function map
+
+```js
+function cloneDeep(obj,map=new Map()){
+  if(typeof obj !=='object'||obj==null) return obj
+  
+  //避免循环引用
+  const objmap=map.get(obj)
+  if(objmap) return objmap
+  
+  let target={}
+  map.set(obj,target)
+  
+  //Map
+  if(obj instanceof Map){
+    target=new Map
+    obj.forEach((v,k)=>{
+      const v1=cloneDeep(v,map)
+      const k1=cloneDeep(k,map)
+      target.set(v1,k1)
+    })
+  }
+  //set
+  if(obj instanceof Set){
+		target = new Set()
+    obj.forEach(v=>{
+      const v1=cloneDeep(v,map);
+      target.add(v1)
+    })
+  }
+  
+  //Array
+  if(obj instanceof Array){
+    target=obj.map(item=>cloneDeep(item,map))
+  }
+  
+  //Object
+  for(const key in obj){
+    const val=obj[key]
+    const val1=cloneDeep(val,map)
+    target[key]=val1
+  }
+  return target
+  
+  
+}
+```
+
+## 删除数组的元素
+
+现在有这样一个需求：遍历数组的同时，删除数组中的所有元素。
+
+思路：我们可以想到的办法是使用数组的 splice() 方法，此外还有 JS 的 delete 关键字。
+
+
+需要注意的是：使用数组的 splice() 方法删除数组元素之后，数组的长度会发生变化；使用 delete 删除数组中的元素之后，**数组的长度不会发生变化**。
+
+下面来看看具体写法。
+
+### 使用数组的 splice() 方法
+
+
+写法1：（错误）
+
+```js
+let arr = [1, 2, 3, 4, 5];
+for (let i = 0; i < arr.length; i++) {
+    console.log(arr.length);
+    arr.splice(i, 1);
+}
+console.log(arr);
+```
+
+打印结果及解释：
+
+```bash
+数组长度的打印结果：5、4、3
+arr最终的值：[2, 4]
+```
+
+写法1的错误在于：没有意识到，splice方法会使 arr 的长度不断变化。
+
+写法2：（错误）
+
+```js
+let arr = [1, 2, 3, 4, 5];
+const len = arr.length;
+for (let i = 0; i < len; i++) {
+    console.log(arr.length);
+    arr.splice(i, 1);
+}
+console.log(arr);
+```
+
+打印结果：
+
+```bash
+数组长度的打印结果：5、4、3、2、2
+arr最终的值：[2, 4]
+```
+
+上方代码，依然没有达到预期的结果。
+
+写法3：（正确写法，从末尾开始删除元素）
+
+```js
+let arr = [1, 2, 3, 4, 5];
+for (let i = arr.length - 1; i >= 0; i--) {
+    console.log(arr.length);
+    arr.splice(i, 1);
+}
+console.log(arr);
+console.log(arr.length);
+
+```
+
+打印结果及解释：
+
+```bash
+数组长度的打印结果：// 5、4、3、2、1
+arr最终的值：[]
+arr最终的长度：0
+```
+
+### 使用 delete 关键字
+
+```js
+let arr = [1, 2, 3, 4, 5];
+for (let i = 0; i < arr.length; i++) {
+    console.log(arr.length);
+    // 注意点: 通过 delete 删除数组中的元素, 数组的长度不会发生变化
+    delete arr[i];
+}
+console.log(JSON.stringify(arr));
+```
+
+打印结果及解释：
+
+```
+数组长度的打印结果：5、5、5、5、5
+最终的arr，是空数组，长度为5：[null, null, null, null ,null]
+```
+
+
+
+
 
