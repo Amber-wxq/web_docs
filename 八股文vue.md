@@ -751,13 +751,242 @@ Vue.directive('focus',{
 })
 ```
 
+例子 
+
+自定义全局指令-自动获取焦点
+
+```js
+
+    //自定义全局指令 v-focus：让文本框自动获取焦点
+    //参数1：指令的名称。注意，在定义的时候，指令的名称前面，不需要加 v- 前缀；但是：在`调用`的时候，必须在指令名称前 加上 v- 前缀
+    //参数2：是一个对象，这个对象身上，有一些指令相关的函数，这些函数可以在特定的阶段，执行相关的操作
+    Vue.directive('focus', {
+    	//在每个函数中，第一个参数，永远是 el ，表示 被绑定了指令的那个元素，这个 el 参数，是一个原生的JS对象（DOM对象）
+        bind: function (el) { // 每当指令绑定到元素上的时候，会立即执行这个 bind 函数，【只执行一次】
+            // 在元素 刚绑定了指令的时候，还没有 插入到 DOM中去，这时候，调用 focus 方法没有作用
+            //  因为，一个元素，只有插入DOM之后，才能获取焦点
+            // el.focus()
+        },
+        inserted: function (el) {  // inserted 表示元素 插入到DOM中的时候，会执行 inserted 函数【触发1次】
+            el.focus()
+            // 和JS行为有关的操作，最好在 inserted 中去执行，放置 JS行为不生效
+        },
+        updated: function (el) {  // 当VNode更新的时候，会执行 updated， 【可能会触发多次】
+
+        }
+    })
+```
 
 
 
+`bind`:每当指令绑定到元素上时会立即执行这个函数（触发一次）
+
+​		元素刚绑定了指令，还没有插入到DOM中
+
+`inserted`: 表示元素插入到DOM中的时候会执行这个函数（触发一次）
+
+​		和JS行为有关的操作，最好在`inserted`中去执行，放置JS行为不生效
+
+`updated`： 当VNode更新的时候，会执行这个函数（可能会触发多次）
 
 
 
+在指定文本框上加`v-focus`
 
+``` html
+<input type="text" id="search" v-model="keywords" v-focus>
+```
+
+完整代码
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="vue2.5.16.js"></script>
+</head>
+
+<body>
+
+    <div id="app">
+        搜索框：
+        <input type="text" id="search" v-model="name" v-focus>
+    </div>
+
+    <script>
+
+        //自定义全局指令 v-focus，让文本框自动获取焦点
+        //参数1：指令的名称。注意，在定义的时候，指令的名称前面，不需要加 v- 前缀；但是：在`调用`的时候，必须在指令名称前 加上 v- 前缀
+        //参数2：是一个对象，这个对象身上，有一些指令相关的函数，这些函数可以在特定的阶段，执行相关的操作
+        Vue.directive('focus', {
+            //在每个函数中，第一个参数，永远是 el ，表示 被绑定了指令的那个元素，这个 el 参数，是一个原生的JS对象（DOM对象）
+            bind: function (el) { // 每当指令绑定到元素上的时候，会立即执行这个 bind 函数，【只执行一次】
+                // 在元素 刚绑定了指令的时候，还没有 插入到 DOM中去，这时候，调用 focus 方法没有作用
+                //  因为，一个元素，只有插入DOM之后，才能获取焦点
+                // el.focus()
+            },
+            inserted: function (el) {  // inserted 表示元素 插入到DOM中的时候，会执行 inserted 函数【触发1次】
+                el.focus()
+                // 和JS行为有关的操作，最好在 inserted 中去执行，防止 JS行为不生效
+            },
+            updated: function (el) {  // 当VNode更新的时候，会执行 updated， 【可能会触发多次】
+            }
+        })
+
+        new Vue({
+            el: '#app',
+            data: {
+                name: 'smyhvae'
+            }
+        })
+    </script>
+</body>
+
+</html>
+
+
+```
+
+### 自定义全局指令-使用bind的第二个参数，binding参数拿到传递值
+
+设置DOM元素的color样式
+
+```js
+Vue.directive('color',{
+  bind:function(el){
+    el.style.color='red'
+  },
+  inserted:function(el){
+    
+  },
+  updated:function(el){
+
+  }
+  
+})
+```
+
+```html
+ <div id="app">
+        搜索框：
+        <input type="text" id="search" v-model="name" v-color>
+    </div>
+```
+
+
+
+这样写固定样式不灵活，改为传参
+
+```html
+ <div id="app">
+        搜索框：
+        <input type="text" id="search" v-model="name"
+               v-color="'green'">
+    </div>
+```
+
+```js
+Vue.directive('color',{
+  bind:function(el,binding){
+    console.log(binding.name); //color
+    console.log(binding.value); //green
+    console.log(binding.expression); //'green'
+    
+    el.style.color=binding.value
+  },
+    inserted:function(el){
+    
+  },
+  updated:function(el){
+
+  }
+})
+
+ new Vue({
+            el: '#app',
+            data: {
+                name: 'smyhvae'
+            }
+        })
+```
+
+
+
+bind方法里传递的第二个参数`binding`，可以拿到DOM元素中`v-color`里填的值。注意，`v-color="'green'"`，这里面写的是**字符串常量**；如果去掉单引号，就成了变量，不是我们想要的。
+
+
+
+### 简写形式
+
+bind和update时触发相同行为，而不关心其他的钩子，代码可以简写形式
+
+```js
+Vue.directive('color',function(el,binding){
+  el.style.color=binding.value
+})
+```
+
+
+
+## 自定义私有指令
+
+在某一个vue对象内部自定义的指令 称为私有指令
+
+只在当前vue对象的了指定的监管区域有用
+
+
+
+例子 设置文字的font-weight
+
+```html
+<body>
+
+    <div id="app">
+        <span v-fontweight="600">生命壹号</span>
+    </div>
+    <script>
+
+        new Vue({
+            el: '#app',
+            data: {
+                name: 'smyhvae'
+            },
+            //自定义私有指令
+            directives: {
+                'fontweight': {
+                    bind: function (el, binding) {
+                        el.style.fontWeight = binding.value;
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+```
+
+
+
+注意， el.style.fontWeight设置属性值，至少要600，否则看不到加粗的效果。
+
+
+
+简写形式：
+
+bind和update时触发相同行为时，可以使用简写形式
+
+```js
+directives:{
+
+  'fontweight':function(el,binding){
+    el.style.fontWeight=binding.value
+  }
+}
+```
 
 
 

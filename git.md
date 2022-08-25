@@ -38,3 +38,34 @@ push
 
 添加 `node_modules/` 或`node_modules` 到`.gitignore`文件以忽略`node_modules`当前文件夹和任何子文件夹中调用的所有目录
 
+
+
+
+
+git commit -m "feat: 合并master" --no-verify       
+
+changeToolbar
+
+
+
+
+
+
+
+git pull 的时候
+
+本地的代码修改会和git上的有冲突，
+
+操作
+
+```
+git stash  //暂存
+
+git pull
+
+git stash pop //取出
+
+//然后解决冲突
+
+```
+

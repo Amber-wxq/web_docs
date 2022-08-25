@@ -1065,3 +1065,366 @@ hover全部表格出现悬浮框，点击等号只显示上边的
 getEndOfSection(spacerIndex: number)
 getParagraphRange(charIndex: number)
 ````
+
+
+
+
+
+构建版本
+
+在文档后加 ?res=版本号
+
+| Fixes sidebar preview for sketch theme |      |                                                              |
+| -------------------------------------- | ---- | ------------------------------------------------------------ |
+|                                        |      | - Disables handwritten fonts in sketch theme with rough=0    |
+|                                        |      | - Fixes inconsistent pointer event handling                  |
+|                                        |      | - Fixes ignored comic style for rectangle shape              |
+|                                        |      | - Adds modifier keys for wheel scrolling in sketch theme     |
+|                                        |      | - Disables page view after page format change with sketch theme |
+|                                        |      | - Updates ar and ru translations                             |
+
+| Disables handwritten fonts in sketch theme with rough=0 |
+| ------------------------------------------------------- |  | ------------------------------------------------------------ |
+|                                                         |  | - Fixes inconsistent pointer event handling                  |
+|                                                         |  | - Fixes ignored comic style for rectangle shape              |
+|                                                         |  | - Adds modifier keys for wheel scrolling in sketch theme     |
+|                                                         |  | - Disables page view after page format change with sketch theme |
+|                                                         |  | - Updates ar and ru translations                             |
+
+| Disables handwritten fonts in sketch theme with rough=0 |
+
+| ------------------------------------------------------- |      | ------------------------------------------------------------ |
+| ------------------------------------------------------- | ---- | ------------------------------------------------------------ |
+|                                                         |      |                                                              |
+|      |      | - Fixes inconsistent pointer event handling |
+| ---- | ---- | ------------------------------------------- |
+|      |      |                                             |
+
+
+
+30-JUN-2021: 14.8.3
+
+[conf cloud] Fixes save settings with current viewer status
+
+Adds function for image export in viewer
+
+Fixes possible NPE https://github.com/jgraph/drawio/issues/2115
+
+25-JUN-2021: 14.8.2
+
+- [conf cloud] Adds lightbox to simple viewer
+
+
+
+5-OCT-2021: 15.5.4
+
+Fixes NPE in TableShape.paintForeground
+
+15-OCT-2021: 15.5.3
+
+Fixes background clipping, in-place bounds changes
+
+Fixes clipping in EmbedDialog
+
+Updates C4 shapes
+
+Fixes new page defaults, adds stepper shift+click
+
+Fixes possible getAttribute is not a function
+
+Fixes export to GitLab https://github.com/jgraph/drawio/issues/1784
+
+Removes save and import servlet
+
+Fixes ignored edge source for metadata [DID-3512]
+
+12-OCT-2021: 15.5.2
+
+
+
+
+
+3-DEC-2021: 15.9.5
+
+Ctrl disables copy if enabled by default
+
+Uses action state for (un)group buttons
+
+Altered AWS group styles for better usability
+
+Fixes no pointerEvents for no (fill)opacity
+
+Fixes for AWS container usability
+
+Uses lazyZoom and adds trackpad in outline window
+
+Fixes dark mode support in browser picker
+
+Fixes ignored stroke option in SVG getBBox https://github.com/jgraph/drawio/issues/2484
+
+
+
+08-DEC-2021: 15.9.4
+
+- Adds mxShape.intersectsRectangle
+
+
+
+
+
+-DEC-2021: 16.1.2
+
+Adds fillStyle dropdown for image background
+
+29-DEC-2021: 16.1.1
+
+Avoids creating Blob for parseFile
+
+Fixes dimension shape with large stroke size https://github.com/jgraph/drawio/issues/271
+
+Hides foreign object warnings in background pages
+
+Fixes overflows in minimal and sketch theme https://github.com/jgraph/drawio/issues/2509
+
+Fixes freehand mode for Apple pencil on iOS https://github.com/jgraph/drawio/issues/2510
+
+Adds tableRow shape, fixes events for merged cells
+
+Uses clip path attribute for SVG image clipping
+
+Fixes default label background for imported images
+
+Fits image to clipPath bounding box
+
+Fixes collapsed table foreground https://github.com/jgraph/drawio/issues/2512
+
+Fixes overflow in LinkDialog
+
+Disables child layout for collapsed cells
+
+23-DEC-2021: 16.1.0
+
+Fixes inconsistent event cursors on table lines
+
+
+
+14-JAN-2022: 16.2.7
+
+Adds enumerateValue property
+
+Adds peristent scratchpad and search in sketch
+
+Updated for modified inline CSS
+
+Fixes realtime zoom on iPad with sketch https://github.com/jgraph/drawio/issues/2545
+
+12-JAN-2022: 16.2.6
+
+Fixes NPE
+
+
+
+
+
+21-JAN-2022: 16.4.5
+
+Corrects SHA for bootstrap
+
+21-JAN-2022: 16.4.4
+
+Fixes undeclared variable idx
+
+Adds a confirmation step to public Github deployment
+
+Enables reverse action for edges https://github.com/jgraph/drawio/issues/2569
+
+Switches to dev branch of i18n submodule
+
+[conf cloud] Uses content.id instead of the deprecated page.id
+
+[conf cloud] Fixes errors of spaces in diagram name and NPE in GraphViewer
+
+20-JAN-2022: 16.4.3
+
+[jira cloud] Adds refresh button to diagram search page
+
+
+
+: 16.4.11
+
+Fixes build process to deploy teams.html
+
+27-JAN-2022: 16.4.8
+
+[desktop] Fixes draft files removal when auto-save is enabled
+
+
+
+10-FEB-2022: 16.5.6
+
+Opens file after drag and drop on blank diagram
+
+Shift+drop forces open file in new tab
+
+Fixes pinch to zoom in lightbox
+
+Moves multitouch event filtering to mxGraph
+
+- 
+
+09-FEB-2022: 16.5.5
+
+Updates AWS stencils
+
+08-FEB-2022: 16.5.4
+
+Removes font CSS links with embedded fonts
+
+
+
+16.6.0
+
+Mode URL parameter forces splash
+
+Adds pass-through arguments
+
+Disables auth check for external editing
+
+Fixes parsing of keywords in SQL plugin https://github.com/jgraph/drawio/issues/2631
+
+
+
+16.6.7
+
+Adds MathJax Safe-mode to fix XSS vulnerability when viewer is used with CSP
+
+04-MAR-2022: 16.6.6
+
+Fixed cropped images of sub shapes not showing
+
+
+
+
+
+17.4.1
+
+Fixes OneDrive inline picker in Link dialog and show all files
+
+Extracts text from selection if cells selected
+
+Returns indexable text in model cell order
+
+Fixes minimum stroke width for image export https://github.com/jgraph/drawio/issues/2723
+
+Fixes PDF printing of background images
+
+[conf cloud] Fixes NPE in viewer
+
+[jira cloud] Adds delete button for cases of removed embed diagrams
+
+31-MAR-2022: 17.4.0
+
+Disables text selection in OneDrive inline picker
+
+
+
+
+
+2022: 17.5.1
+
+[conf cloud] Adds saving delay for specific timing case [DID-4851]
+
+Adds "shareCursorPosition": true/false configuration
+
+[conf cloud] Prevent publishing without changes creating new version
+
+Fixes alt+shift for floating connection [DID-4550]
+
+Changes default for shareCursorPosition to true
+
+Hides non-applicable sketch options for edges
+
+Fixes handling of invalid background page images
+
+Adds showRemoteCursors option
+
+Fixes LocalFile ctor arguments
+
+Fixes lazy shadow pages, stale local draft files
+
+Fixes conflict handling for writing electron files
+
+28-APR-2022: 17.5.0
+
+Refactors GCP2 shapes
+
+[conf cloud] Improves page IDs import
+
+20-APR-2022: 17.4.6
+
+Internal release testing whiteboard app changes
+
+11-APR-2022: 17.4.5
+
+Internal release testing whiteboard app changes
+
+11-APR-2022: 17.4.4
+
+Internal release testing whiteboard app changes
+
+11-APR-2022: 17.4.3
+
+Avoids null string in unused token key
+
+
+
+
+
+15-MAY-2022: 18.0.5
+
+Security improvements in Java code
+
+14-MAY-2022: 18.0.4
+
+Fixes type error for diffsync with overlays [2808]
+
+
+
+-2022: 18.0.8
+
+Deletes unused ExportProxyServlet
+
+17-MAY-2022: 18.0.7
+
+Sets setInstanceFollowRedirects(false) in proxyservlet
+
+
+
+
+
+18.2.0
+
+Fixes inconsistent menus in sketch theme
+
+Fixes ignored XML data for importing embedded SVG
+
+Fixes ignored double arrow marker selection [2839]
+
+Fixes NPE with regex in find/replace dialog [2833]
+
+Fixes link icons in dark mode
+
+Fixes main button hover state in conf sketch macro
+
+26-MAY-2022: 18.1.3
+
+Adds spacing dialog for parallels layout
+
+
+
+
+
+
+
+
+
